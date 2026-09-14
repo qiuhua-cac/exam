@@ -166,16 +166,20 @@ h1{text-align:center;color:#0052cc;margin-bottom:12px;font-size:24px;}
 .modal-actions .btn-danger{background:#dc2626;color:#fff;}
 .modal-actions .btn-success{background:#059669;color:#fff;}
 .modal-actions .btn-warning{background:#f59e0b;color:#fff;}
-.editor-box{background:#fff;border-radius:12px;padding:20px;width:100%;max-width:900px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,0.3);}
-.editor-box h3{font-size:18px;margin-bottom:12px;color:#222;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
-.editor-box textarea{flex:1;width:100%;min-height:300px;padding:12px;font-size:13px;font-family:Consolas,Monaco,monospace;border:1px solid #d1d5db;border-radius:6px;outline:none;resize:vertical;line-height:1.5;background:#f9fafb;}
-.editor-actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+
+.editor-box{background:#fff;border-radius:12px;padding:20px;width:100%;max-width:900px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,0.3);overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.editor-box h3{font-size:18px;margin-bottom:12px;color:#222;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;flex-shrink:0;}
+.editor-box textarea{width:100%;min-height:220px;max-height:360px;padding:12px;font-size:13px;font-family:Consolas,Monaco,monospace;border:1px solid #d1d5db;border-radius:6px;outline:none;resize:vertical;line-height:1.5;background:#f9fafb;flex-shrink:0;transition:height 0.2s, min-height 0.2s;}
+.editor-box textarea.collapsed{min-height:70px;height:70px;}
+.editor-actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;flex-shrink:0;}
 .editor-actions button{padding:10px 16px;font-size:14px;border:none;border-radius:6px;cursor:pointer;}
 .editor-actions .btn-primary{background:#2563eb;color:#fff;}
 .editor-actions .btn-success{background:#059669;color:#fff;}
 .editor-actions .btn-warning{background:#f59e0b;color:#fff;}
 .editor-actions .btn-secondary{background:#e5e7eb;color:#333;}
-.gh-config{border-top:1px solid #e5e7eb;margin-top:14px;padding-top:12px;}
+.editor-actions .btn-toggle{background:#8b5cf6;color:#fff;}
+
+.gh-config{border-top:1px solid #e5e7eb;margin-top:14px;padding-top:12px;flex-shrink:0;}
 .gh-config h4{font-size:14px;font-weight:bold;color:#333;margin-bottom:8px;}
 .gh-config .hint{font-size:12px;color:#888;margin-bottom:8px;line-height:1.6;}
 .gh-config .input-group{margin-bottom:8px;}
@@ -183,9 +187,16 @@ h1{text-align:center;color:#0052cc;margin-bottom:12px;font-size:24px;}
 .gh-config input{width:100%;padding:8px;font-size:13px;border:1px solid #d1d5db;border-radius:5px;outline:none;}
 .gh-config .btn-row{display:flex;gap:8px;margin-top:6px;}
 .gh-config .btn-row button{flex:1;padding:8px;font-size:13px;border:none;border-radius:5px;cursor:pointer;}
-.snapshots-header{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:bold;color:#333;margin:14px 0 8px;padding-top:12px;border-top:1px solid #e5e7eb;}
+
+.txt-import{border-top:1px solid #e5e7eb;margin-top:14px;padding-top:12px;flex-shrink:0;}
+.txt-import h4{font-size:14px;font-weight:bold;color:#333;margin-bottom:8px;}
+.txt-import .hint{font-size:12px;color:#888;margin-bottom:8px;line-height:1.6;}
+.txt-import .btn-row{display:flex;gap:8px;margin-top:6px;}
+.txt-import .btn-row button{flex:1;padding:8px;font-size:13px;border:none;border-radius:5px;cursor:pointer;}
+
+.snapshots-header{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:bold;color:#333;margin:14px 0 8px;padding-top:12px;border-top:1px solid #e5e7eb;flex-shrink:0;}
 .snapshots-header button{font-size:12px;padding:4px 10px;border:none;border-radius:4px;cursor:pointer;}
-.snapshot-list{display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto;margin-bottom:10px;}
+.snapshot-list{display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto;margin-bottom:10px;flex-shrink:0;}
 .snapshot-item{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;font-size:13px;}
 .snapshot-item.locked{border-color:#fbbf24;background:#fffbeb;}
 .snapshot-item .snap-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;gap:6px;}
@@ -198,12 +209,14 @@ h1{text-align:center;color:#0052cc;margin-bottom:12px;font-size:24px;}
 .snap-btn-unlock{background:#6b7280;color:#fff;}
 .snap-btn-use{background:#059669;color:#fff;}
 .snap-btn-del{background:#dc2626;color:#fff;}
-.snapshot-view-box{background:#fff;border-radius:12px;padding:20px;width:100%;max-width:900px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,0.3);}
+
+.snapshot-view-box{background:#fff;border-radius:12px;padding:20px;width:100%;max-width:900px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,0.3);overflow-y:auto;}
 .snapshot-view-box h3{font-size:16px;margin-bottom:10px;color:#222;}
 .snapshot-view-box textarea{flex:1;width:100%;min-height:300px;padding:12px;font-size:12px;font-family:Consolas,Monaco,monospace;border:1px solid #d1d5db;border-radius:6px;outline:none;resize:vertical;line-height:1.5;background:#f9fafb;color:#444;}
 .undo-list{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
 .undo-item{border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;cursor:pointer;background:#f9fafb;font-size:13px;transition:background 0.15s;}
 .undo-item:hover{background:#eff6ff;border-color:#2563eb;}
+
 @media (min-width: 1025px){#floatBall, #mobileSheet{display:none !important;}}
 @media (max-width: 1024px) {
     body{padding:12px 12px 100px 12px;max-width:100%;}
@@ -226,8 +239,9 @@ h1{text-align:center;color:#0052cc;margin-bottom:12px;font-size:24px;}
     .res-opt-list{font-size:13px;}
     .toast-tip{font-size:13px;padding:8px 18px;}
     .modal-box{padding:18px;}
-    .editor-box{padding:14px;max-height:95vh;}
-    .editor-box textarea{min-height:240px;font-size:12px;}
+    .editor-box{padding:14px;max-height:95vh;overflow-y:auto;}
+    .editor-box textarea{min-height:150px;max-height:240px;font-size:12px;}
+    .editor-box textarea.collapsed{min-height:60px;height:60px;}
     .snapshot-view-box{padding:14px;max-height:95vh;}
     .snapshot-view-box textarea{min-height:240px;font-size:11px;}
 }
@@ -336,7 +350,7 @@ h1{text-align:center;color:#0052cc;margin-bottom:12px;font-size:24px;}
 <div class="modal-overlay" id="editorModal">
     <div class="editor-box">
         <h3><span>✏️ HTML 编辑</span><span style="font-size:12px;color:#888;font-weight:normal;">保存后自动刷新页面</span></h3>
-        <div style="font-size:12px;color:#b45309;background:#fef3c7;padding:8px 10px;border-radius:6px;margin-bottom:10px;line-height:1.6;">
+        <div style="font-size:12px;color:#b45309;background:#fef3c7;padding:8px 10px;border-radius:6px;margin-bottom:10px;line-height:1.6;flex-shrink:0;">
             ⚠️ 配置了 GitHub 后，点“保存并刷新”将自动同步到 GitHub Pages，所有设备都能看到最新版。
         </div>
         <textarea id="editorTextarea" spellcheck="false"></textarea>
@@ -345,7 +359,19 @@ h1{text-align:center;color:#0052cc;margin-bottom:12px;font-size:24px;}
             <button class="btn-primary" onclick="exportHTML()">📥 导出 HTML 文件</button>
             <button class="btn-warning" onclick="openUndoModal()">↩️ 撤销版本</button>
             <button class="btn-secondary" onclick="restoreTempSnapshot()">🕐 恢复暂存版本</button>
+            <button class="btn-toggle" id="toggleEditorBtn" onclick="toggleEditorHeight()">↕️ 收起代码框</button>
             <button class="btn-secondary" onclick="closeEditorModal()">关闭</button>
+        </div>
+
+        <div class="txt-import">
+            <h4>📂 导入 TXT 题库</h4>
+            <div class="hint">选择 TXT 文件（按“一、单选题 / 二、多选题 / 三、判断题”格式书写），自动追加到当前题库，并更新到代码框。保存后生效。</div>
+            <input type="file" id="txtFileInput" accept=".txt,text/plain" style="display:none;" onchange="handleTxtUpload(event)">
+            <div class="btn-row">
+                <button style="background:#8b5cf6;color:#fff;" onclick="document.getElementById('txtFileInput').click()">选择 TXT 文件</button>
+                <button style="background:#6b7280;color:#fff;" onclick="showTxtFormatHelp()">查看格式示例</button>
+            </div>
+            <div id="txtImportStatus" style="font-size:12px;color:#666;margin-top:8px;"></div>
         </div>
 
         <div class="gh-config">
@@ -649,7 +675,7 @@ function showToast(msg){
   if(!tip)return;
   tip.textContent=msg;tip.style.display="block";
   clearTimeout(tip._timeout);
-  tip._timeout=setTimeout(()=>{tip.style.display="none";},2000);
+  tip._timeout=setTimeout(()=>{tip.style.display="none";},2500);
 }
 function formatTime(sec){const m=Math.floor(sec/60).toString().padStart(2,'0');const s=(sec%60).toString().padStart(2,'0');return `${m}:${s}`;}
 function updateTimerDisplay(){
@@ -840,6 +866,127 @@ function openUndoModal(){
   document.getElementById("undoModal").classList.add("open");
 }
 function closeUndoModal(){document.getElementById("undoModal").classList.remove("open");}
+
+// ====================== TXT 题库导入 ======================
+function showTxtFormatHelp(){
+  alert('【TXT 文件格式示例】\n\n一、单选题\n1、题目内容（ ）？\nA、选项A\nB、选项B\nC、选项C\nD、选项D\n答案：C\n\n2、题目内容（ ）？\nA、选项A\nB、选项B\nC、选项C\nD、选项D\n答案：A\n\n二、多选题\n1、题目内容（ ）？\nA、选项A\nB、选项B\nC、选项C\nD、选项D\nE、选项E\n答案：ABC\n\n三、判断题\n1、题目内容。\n答案：对\n\n【注意事项】\n· 分类标题必须是“单选题/多选题/判断题”\n· 每题以数字+、开头\n· 选项以字母+、开头\n· 答案行以“答案：”开头');
+
+}
+function handleTxtUpload(event){
+  const file=event.target.files[0];
+  if(!file){return;}
+  const statusEl=document.getElementById('txtImportStatus');
+  statusEl.textContent='正在读取文件...';
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const text=e.target.result;
+    try{
+      const parsed=parseTxtQuestions(text);
+      const count=parsed.single.length+parsed.multi.length+parsed.judge.length;
+      if(count===0){
+        statusEl.textContent='未识别到任何题目，请检查文件格式。';
+        alert('未识别到任何题目。\n\n请检查：\n1. 是否有“一、单选题”、“二、多选题”、“三、判断题”分类标题？\n2. 每题是否以数字+、开头？\n3. 选项是否以字母+、开头？\n4. 答案行是否为“答案：X”？');
+        return;
+      }
+      statusEl.textContent=`识别到 单选 ${parsed.single.length} 题 / 多选 ${parsed.multi.length} 题 / 判断 ${parsed.judge.length} 题，正在合并到代码框...`;
+      mergeTxtIntoEditor(parsed);
+    }catch(err){
+      statusEl.textContent='解析出错：'+err.message;
+      alert('解析出错：'+err.message);
+    }
+  };
+  reader.onerror=function(){statusEl.textContent='文件读取失败。';};
+  reader.readAsText(file,'UTF-8');
+  event.target.value='';
+}
+function parseTxtQuestions(text){
+  const result={single:[],multi:[],judge:[]};
+  const lines=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n');
+  let currentType=null;
+  let currentQ=null;
+  let currentOpts=[];
+  let currentAns=null;
+
+  function commitQuestion(){
+    if(!currentQ)return;
+    if(currentType==='single'&&currentOpts.length>0&&currentAns){
+      result.single.push({q:currentQ,opt:currentOpts.slice(),ans:currentAns});
+    }else if(currentType==='multi'&&currentOpts.length>0&&currentAns){
+      result.multi.push({q:currentQ,opt:currentOpts.slice(),ans:currentAns});
+    }else if(currentType==='judge'&&currentAns){
+      result.judge.push({q:currentQ,opt:['对','错'],ans:currentAns});
+    }
+    currentQ=null;currentOpts=[];currentAns=null;
+  }
+
+  for(let i=0;i<lines.length;i++){
+    const line=lines[i].trim();
+    if(!line)continue;
+    // 分类标题
+    if(/^(一[、.]\s*)?单选题/.test(line)){commitQuestion();currentType='single';continue;}
+    if(/^(二[、.]\s*)?多选题/.test(line)){commitQuestion();currentType='multi';continue;}
+    if(/^(三[、.]\s*)?判断题/.test(line)){commitQuestion();currentType='judge';continue;}
+    // 答案行
+    const ansMatch=line.match(/^答案[：:]\s*(.+)$/);
+    if(ansMatch){currentAns=ansMatch[1].trim();continue;}
+    // 选项行
+    const optMatch=line.match(/^([A-Ea-e])[、.．]\s*(.+)$/);
+    if(optMatch&&currentQ!==null){currentOpts.push(optMatch[1].toUpperCase()+'、'+optMatch[2].trim());continue;}
+    // 题目行
+    const qMatch=line.match(/^\d+[、.．]\s*(.+)$/);
+    if(qMatch&&currentType){commitQuestion();currentQ=qMatch[1].trim();continue;}
+  }
+  commitQuestion();
+  return result;
+}
+function mergeTxtIntoEditor(parsed){
+  const ta=document.getElementById('editorTextarea');
+  let code=ta.value;
+  const statusEl=document.getElementById('txtImportStatus');
+  let inserted=0;
+
+  if(parsed.single.length>0){
+    const marker='single:[';
+    const idx=code.indexOf(marker);
+    if(idx!==-1){
+      const insertPos=idx+marker.length;
+      const newItems=parsed.single.map(q=>`\n{"q":${JSON.stringify(q.q)},"opt":${JSON.stringify(q.opt)},"ans":${JSON.stringify(q.ans)}},`).join('');
+      code=code.slice(0,insertPos)+newItems+code.slice(insertPos);
+      inserted+=parsed.single.length;
+    }
+  }
+  if(parsed.multi.length>0){
+    const marker='multi:[';
+    const idx=code.indexOf(marker);
+    if(idx!==-1){
+      const insertPos=idx+marker.length;
+      const newItems=parsed.multi.map(q=>`\n{"q":${JSON.stringify(q.q)},"opt":${JSON.stringify(q.opt)},"ans":${JSON.stringify(q.ans)}},`).join('');
+      code=code.slice(0,insertPos)+newItems+code.slice(insertPos);
+      inserted+=parsed.multi.length;
+    }
+  }
+  if(parsed.judge.length>0){
+    const marker='judge:[';
+    const idx=code.indexOf(marker);
+    if(idx!==-1){
+      const insertPos=idx+marker.length;
+      const newItems=parsed.judge.map(q=>`\n{"q":${JSON.stringify(q.q)},"opt":${JSON.stringify(q.opt)},"ans":${JSON.stringify(q.ans)}},`).join('');
+      code=code.slice(0,insertPos)+newItems+code.slice(insertPos);
+      inserted+=parsed.judge.length;
+    }
+  }
+
+  if(inserted===0){
+    statusEl.textContent='未能插入到代码中，请检查代码是否包含 questionBank.single/multi/judge 定义。';
+    alert('未能插入到代码中。\n\n可能原因：代码中的 questionBank 结构被修改过，无法定位 single:[ / multi:[ / judge:[ 标记。');
+    return;
+  }
+
+  ta.value=code;
+  addSnapshot(code.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,'<!-- script removed -->'));
+  statusEl.innerHTML=`✅ 已追加 ${inserted} 题到代码框。已生成新存档包（自动顶替最旧的）。<br>请点击“💾 保存并刷新”保存并生效。`;
+  showToast(`已导入 ${inserted} 题，请手动点“保存并刷新”`);
+}
 
 // ====================== 渲染试卷 ======================
 function renderPaper(){
@@ -1198,12 +1345,32 @@ function doLogin(){
 document.getElementById("loginBtn").onclick=openLoginModal;
 document.getElementById("msLoginBtn").onclick=()=>{closeMobileSheet();openLoginModal();};
 
+// ====================== 代码框展开/收起 ======================
+function toggleEditorHeight(){
+  const ta=document.getElementById('editorTextarea');
+  const btn=document.getElementById('toggleEditorBtn');
+  if(!ta)return;
+  if(ta.classList.contains('collapsed')){
+    ta.classList.remove('collapsed');
+    if(btn)btn.textContent='↕️ 收起代码框';
+  }else{
+    ta.classList.add('collapsed');
+    if(btn)btn.textContent='↕️ 展开代码框';
+  }
+}
+
 // ====================== HTML 编辑与存档 ======================
 function getPageHTML(){return "<!DOCTYPE html>\n"+document.documentElement.outerHTML;}
 function openEditorModal(){
   document.getElementById("editorTextarea").value=getPageHTML();
+  const ta=document.getElementById("editorTextarea");
+  if(ta){ta.classList.remove('collapsed');}
+  const btn=document.getElementById("toggleEditorBtn");
+  if(btn){btn.textContent='↕️ 收起代码框';}
   refreshSnapshots();
   loadGitHubConfigToForm();
+  const statusEl=document.getElementById('txtImportStatus');
+  if(statusEl)statusEl.textContent='';
   document.getElementById("editorModal").classList.add("open");
 }
 function closeEditorModal(){document.getElementById("editorModal").classList.remove("open");}
@@ -1218,53 +1385,53 @@ async function saveEditor(){
 
   const config=getGitHubConfig();
   if(!config||!config.token){
-    showToast('已保存到本地，正在刷新...')
-setTimeout)locationreload(}300)
-    return
+    showToast('已保存到本地，正在刷新...');
+    setTimeout(()=>{location.reload();},300);
+    return;
   }
-  showToast('正在同步到 GitHub...')
-  const resultawait syncToGitHub(cleanedHTML)
-  if(resultok){
-    showToast('已同步到 GitHub！1-2 分钟后所有设备生效')
-    setTimeout((){locationreload()}800)
+  showToast('正在同步到 GitHub...');
+  const result=await syncToGitHub(cleanedHTML);
+  if(result.ok){
+    showToast('已同步到 GitHub！1-2 分钟后所有设备生效');
+    setTimeout(()=>{location.reload();},800);
   }else{
-    alert('GitHub 同步失败：''已保存到本地缓存，刷新后本机仍然有效。')
-    setTimeout((){locationreload()}300)
+    alert('GitHub 同步失败：'+result.reason+'\n\n已保存到本地缓存，刷新后本机仍然有效。');
+    setTimeout(()=>{location.reload();},300);
   }
 }
 
 function exportHTML(){
-  const htmldocumentgetElementById("editorTextarea")value
-  if(htmlhtmltrim()){("内容太短，无法导出。")return}
+  const html=document.getElementById("editorTextarea").value;
+  if(!html||html.trim().length<50){alert("内容太短，无法导出。");return;}
   try{
-    const blobnew Blob([html]{type'text/html;charset=utf-8'})
-    const urlURLcreateObjectURL(blob)
-    const adocumentcreateElement('a')
-    ahrefurladownload'index.html'
-    documentbodyappendChild(a)aclick()documentbodyremoveChild(a)
-    setTimeout(()URLrevokeObjectURL(url)00)
-    showToast("已导出，请保存到手机/电脑覆盖原文件")
-  }catch(e){alert("导出失败：")}
+    const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download='index.html';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    showToast("已导出，请保存到手机/电脑覆盖原文件");
+  }catch(e){alert("导出失败："+e.message);}
 }
 
 function restoreTempSnapshot(){
-  const snapsafeGetItem(TEMP_SNAPSHOT_KEY)
-  if(snap){alert("暂无暂存版本可恢复。")return}
-  if(confirm("确定恢复到暂存版本吗？页面将立即替换为暂存版本并刷新。"))return
-  try{safeSetItem(SAVED_HTML_KEYsnap)}catch(e){alert('保存失败。')return}
-  showToast("已恢复暂存版本，正在刷新...")
-  setTimeout((){locationreload()}300)
+  const snap=safeGetItem(TEMP_SNAPSHOT_KEY);
+  if(!snap){alert("暂无暂存版本可恢复。");return;}
+  if(!confirm("确定恢复到暂存版本吗？\n页面将立即替换为暂存版本并刷新。"))return;
+  try{safeSetItem(SAVED_HTML_KEY,snap);}catch(e){alert('保存失败。');return;}
+  showToast("已恢复暂存版本，正在刷新...");
+  setTimeout(()=>{location.reload();},300);
 }
 
-windowaddEventListener("load"(){
-  renderPaper()updateTimerDisplay()renderHistoryScores()
-})
-if(documentreadyState"complete"documentreadyState"interactive"){
-  setTimeout((){
-    if(documentgetElementById("singleBox")){
-      renderPaper()updateTimerDisplay()renderHistoryScores()
+window.addEventListener("load",()=>{
+  renderPaper();updateTimerDisplay();renderHistoryScores();
+});
+if(document.readyState==="complete"||document.readyState==="interactive"){
+  setTimeout(()=>{
+    if(!document.getElementById("singleBox").children.length){
+      renderPaper();updateTimerDisplay();renderHistoryScores();
     }
-  })
+  },0);
 }
 </script>
 </body>
