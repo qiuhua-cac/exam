@@ -15,7 +15,6 @@
     if (!saved || saved.length < 50) return;
     var parser = new DOMParser();
     var doc = parser.parseFromString(saved, 'text/html');
-    // 1. 替换样式
     if (doc.head) {
       var newStyles = doc.head.querySelectorAll('style');
       if (newStyles.length > 0) {
@@ -27,16 +26,12 @@
         });
       }
     }
-    // 2. 替换 body 静态内容（保留 script）
     if (doc.body) {
       var newBody = doc.body.cloneNode(true);
-      // 移除保存版本里的 script，防止重复执行
       newBody.querySelectorAll('script').forEach(function(s){ s.remove(); });
-      // 清空当前 body 的非 script 子元素
       Array.from(document.body.children).forEach(function(el){
         if (el.tagName !== 'SCRIPT') el.remove();
       });
-      // 插入新内容
       Array.from(newBody.childNodes).reverse().forEach(function(node){
         document.body.insertBefore(node, document.body.firstChild);
       });
@@ -47,7 +42,6 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:"Microsoft Yahei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#f0f4fc;padding:24px 280px 24px 280px;max-width:1400px;margin:0 auto;position:relative;-webkit-text-size-adjust:100%}
-
 #sideBar{position:fixed;left:12px;top:16px;width:250px;max-height:calc(100vh - 32px);overflow-y:auto;background:#ffffff;padding:16px;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,0.14);z-index:10;}
 #sideBar h3{font-size:17px;margin-bottom:12px;color:#222;}
 .stat-info{font-size:14px;color:#444;margin-bottom:8px;line-height:1.6;}
@@ -69,7 +63,6 @@ body{background:#f0f4fc;padding:24px 280px 24px 280px;max-width:1400px;margin:0 
 .num-item.wrong{background:#ef4444;color:#fff;border-color:#ef4444;}
 .num-item.right{background:#22c55e;color:#fff;border-color:#22c55e;}
 .num-item:hover{opacity:0.8;}
-
 #resultPanelFixed{position:fixed;right:12px;top:16px;width:250px;max-height:calc(100vh - 32px);overflow-y:auto;background:#fff;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,0.14);padding:16px;display:none;z-index:10;}
 #resultPanelFixed h3{font-size:16px;margin-bottom:10px;color:#222;}
 .result-filter-toggle{display:flex;align-items:center;gap:6px;font-size:13px;color:#374151;background:#f3f4f6;padding:8px 10px;border-radius:6px;margin-bottom:10px;cursor:pointer;user-select:none;}
@@ -94,7 +87,6 @@ body{background:#f0f4fc;padding:24px 280px 24px 280px;max-width:1400px;margin:0 
 .result-num.wrong-item{background:#fee2e2;color:#b91c1c;border-color:#fca5a5;}
 .result-num.unanswered-item{background:#fef3c7;color:#92400e;border-color:#fcd34d;}
 .result-num:hover{opacity:0.8;transform:scale(1.05);}
-
 h1{text-align:center;color:#0052cc;margin-bottom:12px;font-size:24px;}
 .desc{text-align:center;margin-bottom:24px;color:#444;}
 .type-block{background:#fff;padding:20px 24px;border-radius:10px;margin-bottom:24px;box-shadow:0 1px 6px #00000012;}
@@ -104,7 +96,6 @@ h1{text-align:center;color:#0052cc;margin-bottom:12px;font-size:24px;}
 .opt-item{margin:8px 0;font-size:16px;padding:6px 10px;border-radius:6px;cursor:pointer;transition:background 0.15s;display:flex;align-items:center;}
 .opt-item:hover{background:#f1f5f9;}
 .opt-item input{margin-right:10px;transform:scale(1.1);pointer-events:none;}
-
 .result-panel{background:#ecfdf5;padding:24px;border-radius:10px;margin:30px 0;display:none;}
 .score-text{font-size:22px;font-weight:bold;text-align:center;margin-bottom:20px;color:#047857;}
 .result-item{padding:14px 16px;margin:12px 0;border-radius:8px;transition:background 0.3s;}
@@ -119,10 +110,8 @@ h1{text-align:center;color:#0052cc;margin-bottom:12px;font-size:24px;}
 .res-opt-list .opt-line.wrong-opt{color:#b91c1c;}
 .jump-highlight{background:#fde68a !important;box-shadow:0 0 0 2px #f59e0b;}
 .toast-tip{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 24px;border-radius:30px;font-size:14px;z-index:999;display:none;}
-
 #floatBall{display:none;position:fixed;right:16px;bottom:24px;width:56px;height:56px;border-radius:50%;background:#2563eb;color:#fff;box-shadow:0 4px 16px rgba(37,99,235,0.45);z-index:200;cursor:pointer;align-items:center;justify-content:center;font-size:24px;user-select:none;transition:transform 0.2s;}
 #floatBall:active{transform:scale(0.92);}
-
 #mobileSheet{display:none;position:fixed;left:0;right:0;bottom:0;height:78vh;background:#fff;border-radius:16px 16px 0 0;box-shadow:0 -6px 24px rgba(0,0,0,0.22);z-index:150;flex-direction:column;transform:translateY(100%);transition:transform 0.28s ease;overflow:hidden;}
 #mobileSheet.open{transform:translateY(0);}
 .ms-header{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid #e5e7eb;flex-shrink:0;}
@@ -162,7 +151,6 @@ h1{text-align:center;color:#0052cc;margin-bottom:12px;font-size:24px;}
 .ms-history-item .time-val{font-size:10px;color:#9ca3af;}
 .ms-clear-history-btn{display:none;font-size:12px;color:#b91c1c;background:none;border:1px solid #fca5a5;border-radius:6px;padding:6px 10px;cursor:pointer;margin-bottom:12px;width:100%;}
 .ms-clear-history-btn.open{display:block;}
-
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:1000;align-items:center;justify-content:center;padding:16px;}
 .modal-overlay.open{display:flex;}
 .modal-box{background:#fff;border-radius:12px;padding:24px;width:100%;max-width:400px;box-shadow:0 10px 40px rgba(0,0,0,0.25);}
@@ -178,7 +166,6 @@ h1{text-align:center;color:#0052cc;margin-bottom:12px;font-size:24px;}
 .modal-actions .btn-danger{background:#dc2626;color:#fff;}
 .modal-actions .btn-success{background:#059669;color:#fff;}
 .modal-actions .btn-warning{background:#f59e0b;color:#fff;}
-
 .editor-box{background:#fff;border-radius:12px;padding:20px;width:100%;max-width:900px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,0.3);}
 .editor-box h3{font-size:18px;margin-bottom:12px;color:#222;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
 .editor-box textarea{flex:1;width:100%;min-height:300px;padding:12px;font-size:13px;font-family:Consolas,Monaco,monospace;border:1px solid #d1d5db;border-radius:6px;outline:none;resize:vertical;line-height:1.5;background:#f9fafb;}
@@ -188,7 +175,14 @@ h1{text-align:center;color:#0052cc;margin-bottom:12px;font-size:24px;}
 .editor-actions .btn-success{background:#059669;color:#fff;}
 .editor-actions .btn-warning{background:#f59e0b;color:#fff;}
 .editor-actions .btn-secondary{background:#e5e7eb;color:#333;}
-
+.gh-config{border-top:1px solid #e5e7eb;margin-top:14px;padding-top:12px;}
+.gh-config h4{font-size:14px;font-weight:bold;color:#333;margin-bottom:8px;}
+.gh-config .hint{font-size:12px;color:#888;margin-bottom:8px;line-height:1.6;}
+.gh-config .input-group{margin-bottom:8px;}
+.gh-config label{display:block;font-size:12px;color:#555;margin-bottom:4px;}
+.gh-config input{width:100%;padding:8px;font-size:13px;border:1px solid #d1d5db;border-radius:5px;outline:none;}
+.gh-config .btn-row{display:flex;gap:8px;margin-top:6px;}
+.gh-config .btn-row button{flex:1;padding:8px;font-size:13px;border:none;border-radius:5px;cursor:pointer;}
 .snapshots-header{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:bold;color:#333;margin:14px 0 8px;padding-top:12px;border-top:1px solid #e5e7eb;}
 .snapshots-header button{font-size:12px;padding:4px 10px;border:none;border-radius:4px;cursor:pointer;}
 .snapshot-list{display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto;margin-bottom:10px;}
@@ -204,15 +198,12 @@ h1{text-align:center;color:#0052cc;margin-bottom:12px;font-size:24px;}
 .snap-btn-unlock{background:#6b7280;color:#fff;}
 .snap-btn-use{background:#059669;color:#fff;}
 .snap-btn-del{background:#dc2626;color:#fff;}
-
 .snapshot-view-box{background:#fff;border-radius:12px;padding:20px;width:100%;max-width:900px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,0.3);}
 .snapshot-view-box h3{font-size:16px;margin-bottom:10px;color:#222;}
 .snapshot-view-box textarea{flex:1;width:100%;min-height:300px;padding:12px;font-size:12px;font-family:Consolas,Monaco,monospace;border:1px solid #d1d5db;border-radius:6px;outline:none;resize:vertical;line-height:1.5;background:#f9fafb;color:#444;}
-
 .undo-list{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
 .undo-item{border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;cursor:pointer;background:#f9fafb;font-size:13px;transition:background 0.15s;}
 .undo-item:hover{background:#eff6ff;border-color:#2563eb;}
-
 @media (min-width: 1025px){#floatBall, #mobileSheet{display:none !important;}}
 @media (max-width: 1024px) {
     body{padding:12px 12px 100px 12px;max-width:100%;}
@@ -345,13 +336,31 @@ h1{text-align:center;color:#0052cc;margin-bottom:12px;font-size:24px;}
 <div class="modal-overlay" id="editorModal">
     <div class="editor-box">
         <h3><span>✏️ HTML 编辑</span><span style="font-size:12px;color:#888;font-weight:normal;">保存后自动刷新页面</span></h3>
+        <div style="font-size:12px;color:#b45309;background:#fef3c7;padding:8px 10px;border-radius:6px;margin-bottom:10px;line-height:1.6;">
+            ⚠️ 配置了 GitHub 后，点“保存并刷新”将自动同步到 GitHub Pages，所有设备都能看到最新版。
+        </div>
         <textarea id="editorTextarea" spellcheck="false"></textarea>
         <div class="editor-actions">
             <button class="btn-success" onclick="saveEditor()">💾 保存并刷新</button>
+            <button class="btn-primary" onclick="exportHTML()">📥 导出 HTML 文件</button>
             <button class="btn-warning" onclick="openUndoModal()">↩️ 撤销版本</button>
             <button class="btn-secondary" onclick="restoreTempSnapshot()">🕐 恢复暂存版本</button>
             <button class="btn-secondary" onclick="closeEditorModal()">关闭</button>
         </div>
+
+        <div class="gh-config">
+            <h4>🔗 GitHub 自动同步设置</h4>
+            <div class="hint">配置后点“保存并刷新”将自动同步到 GitHub Pages。Token 生成：GitHub → Settings → Developer settings → Personal access tokens (classic) → 勾选 repo 权限。</div>
+            <div class="input-group"><label>仓库所有者（用户名）</label><input type="text" id="ghOwner" placeholder="例如：qiuhua-cac"></div>
+            <div class="input-group"><label>仓库名</label><input type="text" id="ghRepo" placeholder="例如：exam"></div>
+            <div class="input-group"><label>文件路径</label><input type="text" id="ghPath" placeholder="例如：index.html"></div>
+            <div class="input-group"><label>个人访问令牌（Token）</label><input type="password" id="ghToken" placeholder="ghp_xxxxxxxx"></div>
+            <div class="btn-row">
+                <button style="background:#2563eb;color:#fff;" onclick="saveGitHubConfig()">保存配置</button>
+                <button style="background:#059669;color:#fff;" onclick="testGitHubConfig()">测试连接</button>
+            </div>
+        </div>
+
         <div class="snapshots-header"><span>📦 最新存档包（最多3个）</span><button class="btn-secondary" onclick="refreshSnapshots()">刷新</button></div>
         <div class="snapshot-list" id="snapshotList"></div>
         <div style="font-size:12px;color:#888;line-height:1.6;margin-top:6px;">说明：最多保存3个最新存档；已上锁的不会被顶替（至多锁定2个）。</div>
@@ -604,6 +613,7 @@ const HISTORY_KEY = 'fire_exam_history_scores';
 const SNAPSHOTS_KEY = 'fire_exam_snapshots_v1';
 const TEMP_SNAPSHOT_KEY = 'fire_exam_temp_snapshot_v1';
 const SAVED_HTML_KEY = 'fire_exam_saved_html';
+const GH_CONFIG_KEY = 'fire_exam_github_config';
 
 function safeGetItem(key){try{return localStorage.getItem(key);}catch(e){return null;}}
 function safeSetItem(key,value){try{localStorage.setItem(key,value);return true;}catch(e){return false;}}
@@ -639,7 +649,7 @@ function showToast(msg){
   if(!tip)return;
   tip.textContent=msg;tip.style.display="block";
   clearTimeout(tip._timeout);
-  tip._timeout=setTimeout(()=>{tip.style.display="none";},1800);
+  tip._timeout=setTimeout(()=>{tip.style.display="none";},2000);
 }
 function formatTime(sec){const m=Math.floor(sec/60).toString().padStart(2,'0');const s=(sec%60).toString().padStart(2,'0');return `${m}:${s}`;}
 function updateTimerDisplay(){
@@ -649,6 +659,74 @@ function updateTimerDisplay(){
 }
 function startTimer(){if(timerStarted)return;timerStarted=true;timerInterval=setInterval(()=>{secondsElapsed++;updateTimerDisplay();},1000);updateTimerDisplay();}
 function stopTimer(){if(timerInterval){clearInterval(timerInterval);timerInterval=null;}timerStarted=false;}
+
+// ====================== GitHub 同步 ======================
+function getGitHubConfig(){try{const raw=safeGetItem(GH_CONFIG_KEY);return raw?JSON.parse(raw):null;}catch(e){return null;}}
+function saveGitHubConfig(){
+  const config={
+    owner:document.getElementById('ghOwner').value.trim(),
+    repo:document.getElementById('ghRepo').value.trim(),
+    path:document.getElementById('ghPath').value.trim()||'index.html',
+    token:document.getElementById('ghToken').value.trim()
+  };
+  if(!config.owner||!config.repo||!config.token){alert('请完整填写仓库所有者、仓库名和 Token。');return;}
+  try{safeSetItem(GH_CONFIG_KEY,JSON.stringify(config));alert('GitHub 配置已保存！以后点“保存并刷新”会自动同步到 GitHub。');}
+  catch(e){alert('保存配置失败：'+e.message);}
+}
+function loadGitHubConfigToForm(){
+  const config=getGitHubConfig();
+  if(!config)return;
+  const e1=document.getElementById('ghOwner');if(e1)e1.value=config.owner||'';
+  const e2=document.getElementById('ghRepo');if(e2)e2.value=config.repo||'';
+  const e3=document.getElementById('ghPath');if(e3)e3.value=config.path||'index.html';
+  const e4=document.getElementById('ghToken');if(e4)e4.value=config.token||'';
+}
+async function testGitHubConfig(){
+  const config={
+    owner:document.getElementById('ghOwner').value.trim(),
+    repo:document.getElementById('ghRepo').value.trim(),
+    path:document.getElementById('ghPath').value.trim()||'index.html',
+    token:document.getElementById('ghToken').value.trim()
+  };
+  if(!config.owner||!config.repo||!config.token){alert('请先填写完整的配置。');return;}
+  showToast('正在测试连接...');
+  try{
+    const url=`https://api.github.com/repos/${config.owner}/${config.repo}/contents/${config.path}`;
+    const resp=await fetch(url,{headers:{'Authorization':`token ${config.token}`}});
+    if(resp.status===200){
+      const data=await resp.json();
+      alert('连接成功！\n\n文件路径：'+config.path+'\n当前文件大小：'+data.size+' 字节\n\n可以正常使用了。');
+    }else if(resp.status===404){
+      alert('连接成功，但文件不存在。\n\n请确认文件路径是否正确。');
+    }else if(resp.status===401){
+      alert('Token 无效或权限不足。请确认 Token 是否勾选了 repo 权限。');
+    }else{
+      alert('连接失败，状态码：'+resp.status);
+    }
+  }catch(e){alert('网络错误：'+e.message);}
+}
+async function syncToGitHub(htmlContent){
+  const config=getGitHubConfig();
+  if(!config||!config.owner||!config.repo||!config.token){return {ok:false,reason:'no-config'};}
+  try{
+    const url=`https://api.github.com/repos/${config.owner}/${config.repo}/contents/${config.path}`;
+    const getResp=await fetch(url,{headers:{'Authorization':`token ${config.token}`}});
+    let sha=null;
+    if(getResp.status===200){const data=await getResp.json();sha=data.sha;}
+    const body={
+      message:'更新：'+new Date().toLocaleString('zh-CN'),
+      content:btoa(unescape(encodeURIComponent(htmlContent))),
+      sha:sha
+    };
+    const putResp=await fetch(url,{
+      method:'PUT',
+      headers:{'Authorization':`token ${config.token}`,'Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    });
+    if(putResp.status===200||putResp.status===201){return {ok:true};}
+    else{const errText=await putResp.text();return {ok:false,reason:`HTTP ${putResp.status}: ${errText.substring(0,200)}`};}
+  }catch(e){return {ok:false,reason:e.message};}
+}
 
 // ====================== 存档包管理 ======================
 function getSnapshots(){try{const raw=safeGetItem(SNAPSHOTS_KEY);return raw?JSON.parse(raw):[];}catch(e){return [];}}
@@ -688,7 +766,7 @@ function refreshSnapshots(){
   const list=getSnapshots();
   const wrap=document.getElementById("snapshotList");
   if(!wrap)return;
-  if(list.length===0){wrap.innerHTML='<div style="font-size:12px;color:#9ca3af;text-align:center;padding:10px;">暂无存档，登录后首次保存时自动创建</div>';return;}
+  if(list.length===0){wrap.innerHTML='<div style="font-size:12px;color:#9ca3af;text-align:center;padding:10px;">暂无存档，首次保存时自动创建</div>';return;}
   wrap.innerHTML=list.map(s=>`
     <div class="snapshot-item ${s.locked?'locked':''}">
       <div class="snap-head">
@@ -785,34 +863,19 @@ function renderPaper(){
   paperData.single.forEach((item,idx)=>{
     const div=document.createElement("div");div.className="item-wrap";div.id=`s_${idx}`;
     const displayNum=idx+1;
-    div.innerHTML=`
-      <div class="q-text">${displayNum}. ${item.q}</div>
-      <div class="opt-list">
-        ${item.opt.map(o=>`<div class="opt-item" data-qtype="s" data-qidx="${idx}" data-value="${o.charAt(0)}"><input type="radio" name="s_${idx}" value="${o.charAt(0)}">${o}</div>`).join("")}
-      </div>
-    `;
+    div.innerHTML=`<div class="q-text">${displayNum}. ${item.q}</div><div class="opt-list">${item.opt.map(o=>`<div class="opt-item" data-qtype="s" data-qidx="${idx}" data-value="${o.charAt(0)}"><input type="radio" name="s_${idx}" value="${o.charAt(0)}">${o}</div>`).join("")}</div>`;
     singleBox.appendChild(div);
   });
   paperData.multi.forEach((item,idx)=>{
     const div=document.createElement("div");div.className="item-wrap";div.id=`m_${idx}`;
     const displayNum=100+idx+1;
-    div.innerHTML=`
-      <div class="q-text">${displayNum}. ${item.q}</div>
-      <div class="opt-list">
-        ${item.opt.map(o=>`<div class="opt-item" data-qtype="m" data-qidx="${idx}" data-value="${o.charAt(0)}"><input type="checkbox" name="m_${idx}" value="${o.charAt(0)}">${o}</div>`).join("")}
-      </div>
-    `;
+    div.innerHTML=`<div class="q-text">${displayNum}. ${item.q}</div><div class="opt-list">${item.opt.map(o=>`<div class="opt-item" data-qtype="m" data-qidx="${idx}" data-value="${o.charAt(0)}"><input type="checkbox" name="m_${idx}" value="${o.charAt(0)}">${o}</div>`).join("")}</div>`;
     multiBox.appendChild(div);
   });
   paperData.judge.forEach((item,idx)=>{
     const div=document.createElement("div");div.className="item-wrap";div.id=`j_${idx}`;
     const displayNum=140+idx+1;
-    div.innerHTML=`
-      <div class="q-text">${displayNum}. ${item.q}</div>
-      <div class="opt-list">
-        ${item.opt.map(o=>`<div class="opt-item" data-qtype="j" data-qidx="${idx}" data-value="${o}"><input type="radio" name="j_${idx}" value="${o}">${o}</div>`).join("")}
-      </div>
-    `;
+    div.innerHTML=`<div class="q-text">${displayNum}. ${item.q}</div><div class="opt-list">${item.opt.map(o=>`<div class="opt-item" data-qtype="j" data-qidx="${idx}" data-value="${o}"><input type="radio" name="j_${idx}" value="${o}">${o}</div>`).join("")}</div>`;
     judgeBox.appendChild(div);
   });
   renderCard();
@@ -932,12 +995,7 @@ function renderResultList(allResult,onlyWrong){
       optHtml+=`<div class="${optCls}">${o}</div>`;
     });
     const userAnsDisplay=r.answered?r.user:"未作答";
-    div.innerHTML=`
-      <div class="res-q">【${r.type}】第${r.displayNum}题：${r.q}</div>
-      <div class="res-info">你的答案：${userAnsDisplay}｜${statusText}</div>
-      <div class="res-info" style="margin-bottom:6px;">正确答案：${r.right}</div>
-      <div class="res-opt-list">${optHtml}</div>
-    `;
+    div.innerHTML=`<div class="res-q">【${r.type}】第${r.displayNum}题：${r.q}</div><div class="res-info">你的答案：${userAnsDisplay}｜${statusText}</div><div class="res-info" style="margin-bottom:6px;">正确答案：${r.right}</div><div class="res-opt-list">${optHtml}</div>`;
     resWrap.appendChild(div);
   });
 }
@@ -1145,20 +1203,50 @@ function getPageHTML(){return "<!DOCTYPE html>\n"+document.documentElement.outer
 function openEditorModal(){
   document.getElementById("editorTextarea").value=getPageHTML();
   refreshSnapshots();
+  loadGitHubConfigToForm();
   document.getElementById("editorModal").classList.add("open");
 }
 function closeEditorModal(){document.getElementById("editorModal").classList.remove("open");}
-function saveEditor(){
+
+async function saveEditor(){
   const newHTML=document.getElementById("editorTextarea").value;
   if(!newHTML||newHTML.trim().length<50){alert("内容太短，可能不是完整的HTML，请检查。");return;}
-  // 去掉所有 script 标签，防止加载时重复执行
   const cleanedHTML=newHTML.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,'<!-- script removed -->');
   try{safeSetItem(TEMP_SNAPSHOT_KEY,getPageHTML());}catch(e){}
   addSnapshot(cleanedHTML);
-  try{safeSetItem(SAVED_HTML_KEY,cleanedHTML);}catch(e){alert("保存失败：浏览器存储空间不足或禁用。");return;}
-  showToast("已保存，正在刷新...");
-  setTimeout(()=>{location.reload();},300);
+  try{safeSetItem(SAVED_HTML_KEY,cleanedHTML);}catch(e){}
+
+  const config=getGitHubConfig();
+  if(!config||!config.token){
+    showToast('已保存到本地，正在刷新...');
+    setTimeout(()=>{location.reload();},300);
+    return;
+  }
+  showToast('正在同步到 GitHub...');
+  const result=await syncToGitHub(cleanedHTML);
+  if(result.ok){
+    showToast('已同步到 GitHub！1-2 分钟后所有设备生效');
+    setTimeout(()=>{location.reload();},800);
+  }else{
+    alert('GitHub 同步失败：'+result.reason+'\n\n已保存到本地缓存，刷新后本机仍然有效。');
+    setTimeout(()=>{location.reload();},300);
+  }
 }
+
+function exportHTML(){
+  const html=document.getElementById("editorTextarea").value;
+  if(!html||html.trim().length<50){alert("内容太短，无法导出。");return;}
+  try{
+    const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download='index.html';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    showToast("已导出，请保存到手机/电脑覆盖原文件");
+  }catch(e){alert("导出失败："+e.message);}
+}
+
 function restoreTempSnapshot(){
   const snap=safeGetItem(TEMP_SNAPSHOT_KEY);
   if(!snap){alert("暂无暂存版本可恢复。");return;}
