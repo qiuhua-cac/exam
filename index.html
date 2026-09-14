@@ -6,7 +6,7 @@
 <meta name="format-detection" content="telephone=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#f0f4fc">
-<title>中级监控精准模拟考测试</title>
+<title>中级监控精准模拟考</title>
 <script>
 (function(){
   try {
@@ -706,19 +706,17 @@ function safeGetItem(key){try{return localStorage.getItem(key);}catch(e){return 
 function safeSetItem(key,value){try{localStorage.setItem(key,value);return true;}catch(e){return false;}}
 function safeRemoveItem(key){try{localStorage.removeItem(key);return true;}catch(e){return false;}}
 
-// ====================== HTML 清理（过滤翻译插件标签） ======================
+// ====================== HTML 清理（保留 script，仅过滤翻译插件标签） ======================
 function cleanHTML(rawHTML){
   let html = rawHTML;
-  // 1. 去除所有 script 标签
-  html = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '<!-- script removed -->');
-  // 2. 去除 volc-translate（火山翻译）
+  // 1. 去除 volc-translate（火山翻译）
   html = html.replace(/<volc-translate\b[^>]*>[\s\S]*?<\/volc-translate>/gi, '');
-  // 3. 去除 immersive-translate
+  // 2. 去除 immersive-translate
   html = html.replace(/<immersive-translate[^>]*>[\s\S]*?<\/immersive-translate>/gi, '');
-  // 4. 去除其他常见翻译/扩展注入标签
+  // 3. 去除其他常见翻译/扩展注入标签
   html = html.replace(/<[a-z-]*translate[a-z-]*\b[^>]*>[\s\S]*?<\/[a-z-]*translate[a-z-]*>/gi, '');
   html = html.replace(/<[a-z-]*extension[a-z-]*\b[^>]*>[\s\S]*?<\/[a-z-]*extension>/gi, '');
-  // 5. 清理连续空行
+  // 4. 清理连续空行（仅压缩3个以上空行，不影响 script 内容）
   html = html.replace(/\n\s*\n\s*\n/g, '\n\n');
   return html;
 }
