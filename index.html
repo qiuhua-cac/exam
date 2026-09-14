@@ -1048,45 +1048,29 @@ function restoreEditorTab(){
   switchEditorTab(paneId);
 }
 
-// ====================== 跳转到题库代码行（定位到 single:[ 下一行） ======================
+// ====================== 跳转到题库代码行（搜索 "// ====================== 题库 ======================"） ======================
 function gotoQuestionBankLine(){
   const ta = document.getElementById('editorTextarea');
   if(!ta) return;
   const code = ta.value;
-  const lines = code.split('\n');
-  let targetLine = -1;
-  // 查找 "const questionBank = {" 这一行，然后定位到它的下一行 single:[
-  for(let i = 0; i < lines.length; i++){
-    if(/const\s+questionBank\s*=\s*\{/.test(lines[i]) || /questionBank\s*=\s*\{/.test(lines[i])){
-      // 定位到下一行（即 single:[ 那一行）
-      if(i + 1 < lines.length && /single\s*:\s*\[/.test(lines[i + 1])){
-        targetLine = i + 1;
-      }else{
-        targetLine = i;
-      }
-      break;
-    }
-  }
-  // 备用：直接查找 single:[
-  if(targetLine === -1){
-    for(let i = 0; i < lines.length; i++){
-      if(/single\s*:\s*\[/.test(lines[i])){ targetLine = i; break; }
-    }
-  }
-  if(targetLine === -1){
+  // 直接搜索目标字符串
+  const targetStr = '// ====================== 题库 ======================';
+  const pos = code.indexOf(targetStr);
+  if(pos === -1){
     showToast('未找到题库代码位置');
     return;
   }
-  let charPos = 0;
-  for(let i = 0; i < targetLine; i++){
-    charPos += lines[i].length + 1;
-  }
+  // 计算行号
+  const before = code.slice(0, pos);
+  const lineNum = before.split('\n').length - 1;
+  // 设置光标并滚动
   ta.focus();
-  ta.setSelectionRange(charPos, charPos);
+  ta.setSelectionRange(pos, pos);
   const lineHeight = 19.5;
-  const targetScroll = Math.max(0, targetLine * lineHeight - ta.clientHeight / 3);
+  const targetScroll = Math.max(0, lineNum * lineHeight - ta.clientHeight / 3);
   ta.scrollTop = targetScroll;
   syncEditorScroll();
+  // 高亮闪烁
   const wrap = document.getElementById('editorWithLines');
   if(wrap){
     wrap.classList.remove('qbank-line-highlight');
@@ -1094,7 +1078,7 @@ function gotoQuestionBankLine(){
     wrap.classList.add('qbank-line-highlight');
     setTimeout(()=>wrap.classList.remove('qbank-line-highlight'), 2100);
   }
-  showToast(`已跳转到题库代码（第 ${targetLine + 1} 行）`);
+  showToast(`已跳转到题库代码（第 ${lineNum + 1} 行）`);
 }
 
 // ====================== GitHub 设置折叠 ======================
@@ -1521,7 +1505,7 @@ function mergeTxtIntoEditor(parsed){
   refreshSnapshots();
   showToast(`已导入 ${inserted} 题，请手动点"保存并刷新"`);
 
-  // ===== 关键：导入完成后自动跳转到题库代码（const questionBank = { 后的 single:[ 行）=====
+  // 导入完成后自动跳转到题库代码位置
   setTimeout(()=>{
     gotoQuestionBankLine();
   }, 300);
