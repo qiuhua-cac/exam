@@ -1218,53 +1218,53 @@ async function saveEditor(){
 
   const config=getGitHubConfig();
   if(!config||!config.token){
-    showToast('已保存到本地，正在刷新...');
-    setTimeout(()=>{location.reload();},300);
-    return;
+    showToast('已保存到本地，正在刷新...')
+setTimeout)locationreload(}300)
+    return
   }
-  showToast('正在同步到 GitHub...');
-  const result=await syncToGitHub(cleanedHTML);
-  if(result.ok){
-    showToast('已同步到 GitHub！1-2 分钟后所有设备生效');
-    setTimeout(()=>{location.reload();},800);
+  showToast('正在同步到 GitHub...')
+  const resultawait syncToGitHub(cleanedHTML)
+  if(resultok){
+    showToast('已同步到 GitHub！1-2 分钟后所有设备生效')
+    setTimeout((){locationreload()}800)
   }else{
-    alert('GitHub 同步失败：'+result.reason+'\n\n已保存到本地缓存，刷新后本机仍然有效。');
-    setTimeout(()=>{location.reload();},300);
+    alert('GitHub 同步失败：''已保存到本地缓存，刷新后本机仍然有效。')
+    setTimeout((){locationreload()}300)
   }
 }
 
 function exportHTML(){
-  const html=document.getElementById("editorTextarea").value;
-  if(!html||html.trim().length<50){alert("内容太短，无法导出。");return;}
+  const htmldocumentgetElementById("editorTextarea")value
+  if(htmlhtmltrim()){("内容太短，无法导出。")return}
   try{
-    const blob=new Blob([html],{type:'text/html;charset=utf-8'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url;a.download='index.html';
-    document.body.appendChild(a);a.click();document.body.removeChild(a);
-    setTimeout(()=>URL.revokeObjectURL(url),1000);
-    showToast("已导出，请保存到手机/电脑覆盖原文件");
-  }catch(e){alert("导出失败："+e.message);}
+    const blobnew Blob([html]{type'text/html;charset=utf-8'})
+    const urlURLcreateObjectURL(blob)
+    const adocumentcreateElement('a')
+    ahrefurladownload'index.html'
+    documentbodyappendChild(a)aclick()documentbodyremoveChild(a)
+    setTimeout(()URLrevokeObjectURL(url)00)
+    showToast("已导出，请保存到手机/电脑覆盖原文件")
+  }catch(e){alert("导出失败：")}
 }
 
 function restoreTempSnapshot(){
-  const snap=safeGetItem(TEMP_SNAPSHOT_KEY);
-  if(!snap){alert("暂无暂存版本可恢复。");return;}
-  if(!confirm("确定恢复到暂存版本吗？\n页面将立即替换为暂存版本并刷新。"))return;
-  try{safeSetItem(SAVED_HTML_KEY,snap);}catch(e){alert('保存失败。');return;}
-  showToast("已恢复暂存版本，正在刷新...");
-  setTimeout(()=>{location.reload();},300);
+  const snapsafeGetItem(TEMP_SNAPSHOT_KEY)
+  if(snap){alert("暂无暂存版本可恢复。")return}
+  if(confirm("确定恢复到暂存版本吗？页面将立即替换为暂存版本并刷新。"))return
+  try{safeSetItem(SAVED_HTML_KEYsnap)}catch(e){alert('保存失败。')return}
+  showToast("已恢复暂存版本，正在刷新...")
+  setTimeout((){locationreload()}300)
 }
 
-window.addEventListener("load",()=>{
-  renderPaper();updateTimerDisplay();renderHistoryScores();
-});
-if(document.readyState==="complete"||document.readyState==="interactive"){
-  setTimeout(()=>{
-    if(!document.getElementById("singleBox").children.length){
-      renderPaper();updateTimerDisplay();renderHistoryScores();
+windowaddEventListener("load"(){
+  renderPaper()updateTimerDisplay()renderHistoryScores()
+})
+if(documentreadyState"complete"documentreadyState"interactive"){
+  setTimeout((){
+    if(documentgetElementById("singleBox")){
+      renderPaper()updateTimerDisplay()renderHistoryScores()
     }
-  },0);
+  })
 }
 </script>
 </body>
