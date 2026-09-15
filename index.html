@@ -37,117 +37,6 @@
     }
   } catch(e) { console.warn('应用保存版本失败', e); }
 })();
-// ====================== 复活备份检测（最高优先级，崩溃时自动弹窗） ======================
-(function(){
-  try {
-    var HEALTH_KEY = 'fire_exam_health_v1';
-    var REVIVE_KEY = 'fire_exam_revive_v1';
-    var raw = localStorage.getItem(HEALTH_KEY);
-    var crashed = false;
-    if (raw) {
-      try {
-        var obj = JSON.parse(raw);
-        if (obj && obj.ts && (Date.now() - obj.ts) > 15000) crashed = true;
-      } catch(e){}
-    }
-    if (crashed) {
-      var reviveRaw = localStorage.getItem(REVIVE_KEY);
-      if (reviveRaw) {
-        try {
-          var revive = JSON.parse(reviveRaw);
-          if (revive && revive.content) {
-            document.addEventListener('DOMContentLoaded', function(){
-              setTimeout(function(){ showRevivePopupGlobal(revive); }, 600);
-            });
-          }
-        } catch(e){}
-      }
-    }
-    function tick(){
-      try { localStorage.setItem(HEALTH_KEY, JSON.stringify({ ts: Date.now() })); } catch(e){}
-    }
-    tick();
-    setInterval(tick, 5000);
-    window.addEventListener('beforeunload', function(){
-      try { localStorage.removeItem(HEALTH_KEY); } catch(e){}
-    });
-  } catch(e){ console.warn('复活备份检测失败', e); }
-})();
-
-function showRevivePopupGlobal(revive){
-  var overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(5px);';
-  overlay.innerHTML = 
-    '<div style="background:#fff;border-radius:18px;max-width:440px;width:100%;box-shadow:0 25px 70px rgba(0,0,0,0.5);overflow:hidden;border:3px solid #f59e0b;">' +
-      '<div style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;padding:20px 22px 16px;text-align:center;">' +
-        '<div style="font-size:40px;margin-bottom:6px;">💊</div>' +
-        '<div style="font-size:18px;font-weight:700;margin-bottom:4px;">检测到页面异常</div>' +
-        '<div style="font-size:12px;opacity:0.9;">复活备份可用，是否立即恢复？</div>' +
-      '</div>' +
-      '<div style="padding:20px 22px;">' +
-        '<div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;padding:10px 12px;font-size:12px;color:#78350f;line-height:1.7;margin-bottom:14px;">' +
-          '⚠️ 页面可能已崩溃或代码错乱。<br>检测到本地存在<b>复活备份</b>，可以一键恢复。<br>恢复后请刷新页面以重新加载。' +
-        '</div>' +
-        '<div style="font-size:11px;color:#8aa2c0;text-align:center;margin-bottom:14px;">备份时间：' + (revive.time||'未知') + ' · 大小：' + ((revive.size||0)/1024).toFixed(1) + ' KB</div>' +
-        '<div style="background:#fee2e2;border:1px solid #fecaca;border-radius:10px;padding:10px 12px;font-size:11px;color:#991b1b;line-height:1.6;margin-bottom:14px;">' +
-          '⚠️ 恢复操作将使用备份内容覆盖当前页面缓存，请确认。' +
-        '</div>' +
-      '</div>' +
-      '<div style="display:flex;gap:8px;padding:0 22px 20px;">' +
-        '<button id="revivePreviewGlobal" style="flex:0 0 auto;padding:12px 14px;border-radius:12px;border:1px solid #93c5fd;background:#dbeafe;color:#1e40af;font-size:14px;font-weight:600;cursor:pointer;">👁</button>' +
-        '<button id="reviveLaterGlobal" style="flex:1;padding:12px 16px;border-radius:12px;border:1px solid #e2e8f0;background:#f1f5f9;color:#475569;font-size:14px;font-weight:600;cursor:pointer;">稍后</button>' +
-        '<button id="reviveRestoreGlobal" style="flex:1;padding:12px 16px;border-radius:12px;border:none;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 4px 14px rgba(245,158,11,0.4);">立即恢复</button>' +
-      '</div>' +
-    '</div>';
-  document.body.appendChild(overlay);
-
-  overlay.querySelector('#reviveLaterGlobal').onclick = function(){ overlay.remove(); };
-
-  overlay.querySelector('#revivePreviewGlobal').onclick = function(){
-    var pv = document.createElement('div');
-    pv.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100000;display:flex;align-items:center;justify-content:center;padding:16px;';
-    pv.innerHTML = 
-      '<div style="background:#fff;border-radius:14px;max-width:720px;width:100%;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;">' +
-        '<div style="padding:14px 18px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;display:flex;justify-content:space-between;align-items:center;">' +
-          '<h3 style="font-size:15px;">💊 复活备份预览（只读）</h3>' +
-          '<button id="revivePreviewClose" style="background:rgba(255,255,255,0.2);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;">✕</button>' +
-        '</div>' +
-        '<div style="padding:14px 18px;overflow-y:auto;flex:1;">' +
-          '<pre style="background:#1e293b;color:#a5f3fc;border-radius:10px;padding:12px;font-family:Consolas,monospace;font-size:11px;line-height:1.5;overflow-x:auto;white-space:pre;max-height:60vh;overflow-y:auto;word-break:break-all;">' + (revive.content||'').replace(/[&<>]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[m];}) + '</pre>' +
-        '</div>' +
-      '</div>';
-    document.body.appendChild(pv);
-    pv.querySelector('#revivePreviewClose').onclick = function(){ pv.remove(); };
-    pv.addEventListener('click', function(e){ if(e.target === pv) pv.remove(); });
-  };
-
-  overlay.querySelector('#reviveRestoreGlobal').onclick = function(){
-    var pwd = prompt('⚠️ 恢复操作需要验证身份\n\n请输入确认密码：');
-    if(pwd === null) return;
-    if(pwd !== 'qiuhua'){
-      alert('❌ 密码错误，恢复已取消。');
-      return;
-    }
-    if (!confirm('确认使用复活备份覆盖当前页面缓存？')) return;
-    try {
-      localStorage.setItem('fire_exam_saved_html', revive.content);
-      localStorage.removeItem('fire_exam_health_v1');
-    } catch(e) { alert('保存失败，可能超出存储限制'); return; }
-    overlay.remove();
-    alert('✅ 复活备份已应用，正在刷新…');
-    setTimeout(function(){ location.reload(); }, 500);
-  };
-}
-
-function verifyRevivePassword(){
-  var pwd = prompt('⚠️ 恢复操作需要验证身份\n\n请输入确认密码：');
-  if(pwd === null) return false;
-  if(pwd !== 'qiuhua'){
-    alert('❌ 密码错误，恢复已取消。');
-    return false;
-  }
-  return true;
-}
 </script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:"Microsoft Yahei",sans-serif;-webkit-tap-highlight-color:transparent}
@@ -578,6 +467,25 @@ h1{text-align:center;color:#0052cc;margin-bottom:12px;font-size:24px;}
     </div>
 </div>
 
+<!-- ==================== 题库搜索弹窗 ==================== -->
+<div class="modal-overlay" id="qbankSearchModal">
+    <div class="modal-box" style="max-width:480px;">
+        <h3>🔍 题库搜索</h3>
+        <div style="font-size:12px;color:#6b7280;margin-bottom:8px;line-height:1.6;">
+            输入关键词后点击“查找”，可在当前代码中定位并高亮（类似浏览器 Ctrl+F）。
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;">
+            <input type="text" id="qbankSearchInput" value="// ====================== 题库 ======================" style="flex:1;padding:10px 12px;font-size:14px;border:1px solid #d1d5db;border-radius:6px;outline:none;">
+            <button onclick="searchInEditor()" style="padding:10px 16px;background:#2563eb;color:#fff;border:none;border-radius:6px;cursor:pointer;">查找</button>
+        </div>
+        <div id="qbankSearchStatus" style="font-size:12px;color:#9ca3af;margin-bottom:10px;">输入关键词后点击“查找”</div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeQbankSearch()">关闭</button>
+            <button class="btn-warning" onclick="searchInEditor(true)">下一个</button>
+        </div>
+    </div>
+</div>
+
 <div class="modal-overlay" id="editorModal">
     <div class="editor-box">
         <h3><span>✏️ HTML 编辑</span><span style="font-size:12px;color:#888;font-weight:normal;">保存后自动刷新页面</span></h3>
@@ -594,7 +502,7 @@ h1{text-align:center;color:#0052cc;margin-bottom:12px;font-size:24px;}
             </div>
             <div class="editor-toolbar">
                 <span class="toolbar-label">快捷：</span>
-                <button class="tb-btn-goto" onclick="gotoQuestionBankLine()">📌 题库代码</button>
+                <button class="tb-btn-goto" onclick="openQbankSearch()">🔍 题库搜索</button>
                 <button class="tb-btn-upload" onclick="document.getElementById('txtFileInput').click()">📂 题库上传</button>
                 <button class="tb-btn-help" onclick="showTxtFormatHelp()">格式说明</button>
             </div>
@@ -970,6 +878,7 @@ let timerStarted = false;
 let currentHighlightedItem = null;
 let highlightTimer = null;
 let lastAllResult = [];
+let isLoggedIn = false;
 
 const HISTORY_KEY = 'fire_exam_history_scores';
 const SNAPSHOTS_KEY = 'fire_exam_snapshots_v1';
@@ -1048,37 +957,76 @@ function restoreEditorTab(){
   switchEditorTab(paneId);
 }
 
-// ====================== 跳转到题库代码行（搜索 "// ====================== 题库 ======================"） ======================
-function gotoQuestionBankLine(){
+// ====================== 题库搜索（替代原跳转功能） ======================
+let qbankSearchIndex = -1;
+
+function openQbankSearch() {
+  const modal = document.getElementById('qbankSearchModal');
+  const input = document.getElementById('qbankSearchInput');
+  if (!modal || !input) return;
   const ta = document.getElementById('editorTextarea');
-  if(!ta) return;
-  const code = ta.value;
-  // 直接搜索目标字符串
-  const targetStr = '// ====================== 题库 ======================';
-  const pos = code.indexOf(targetStr);
-  if(pos === -1){
-    showToast('未找到题库代码位置');
+  if (!ta.value || ta.value.length < 50) {
+    ta.value = getPageHTML();
+    syncEditorLines();
+  }
+  if (!input.value) {
+    input.value = '// ====================== 题库 ======================';
+  }
+  qbankSearchIndex = -1;
+  document.getElementById('qbankSearchStatus').textContent = '输入关键词后点击“查找”';
+  modal.classList.add('open');
+  setTimeout(() => input.focus(), 100);
+}
+
+function closeQbankSearch() {
+  document.getElementById('qbankSearchModal').classList.remove('open');
+  qbankSearchIndex = -1;
+}
+
+function searchInEditor(next) {
+  const ta = document.getElementById('editorTextarea');
+  const input = document.getElementById('qbankSearchInput');
+  const status = document.getElementById('qbankSearchStatus');
+  if (!ta || !input) return;
+  const keyword = input.value.trim();
+  if (!keyword) {
+    status.textContent = '⚠️ 请输入关键词';
     return;
   }
-  // 计算行号
+  const code = ta.value;
+  let pos;
+  if (next && qbankSearchIndex >= 0) {
+    pos = code.indexOf(keyword, qbankSearchIndex + keyword.length);
+  } else {
+    pos = code.indexOf(keyword);
+  }
+  if (pos === -1) {
+    if (next) {
+      pos = code.indexOf(keyword);
+    }
+    if (pos === -1) {
+      status.textContent = `❌ 未找到“${keyword}”`;
+      qbankSearchIndex = -1;
+      return;
+    }
+  }
+  qbankSearchIndex = pos;
   const before = code.slice(0, pos);
-  const lineNum = before.split('\n').length - 1;
-  // 设置光标并滚动
+  const lineNum = before.split('\n').length;
   ta.focus();
-  ta.setSelectionRange(pos, pos);
+  ta.setSelectionRange(pos, pos + keyword.length);
   const lineHeight = 19.5;
-  const targetScroll = Math.max(0, lineNum * lineHeight - ta.clientHeight / 3);
+  const targetScroll = Math.max(0, (lineNum - 1) * lineHeight - ta.clientHeight / 3);
   ta.scrollTop = targetScroll;
   syncEditorScroll();
-  // 高亮闪烁
   const wrap = document.getElementById('editorWithLines');
-  if(wrap){
+  if (wrap) {
     wrap.classList.remove('qbank-line-highlight');
     void wrap.offsetWidth;
     wrap.classList.add('qbank-line-highlight');
-    setTimeout(()=>wrap.classList.remove('qbank-line-highlight'), 2100);
+    setTimeout(() => wrap.classList.remove('qbank-line-highlight'), 2100);
   }
-  showToast(`已跳转到题库代码（第 ${lineNum + 1} 行）`);
+  status.innerHTML = `✅ 已找到“${keyword}”在第 ${lineNum} 行`;
 }
 
 // ====================== GitHub 设置折叠 ======================
@@ -1505,9 +1453,8 @@ function mergeTxtIntoEditor(parsed){
   refreshSnapshots();
   showToast(`已导入 ${inserted} 题，请手动点"保存并刷新"`);
 
-  // 导入完成后自动跳转到题库代码位置
   setTimeout(()=>{
-    gotoQuestionBankLine();
+    openQbankSearch();
   }, 300);
 }
 
@@ -1759,6 +1706,16 @@ function importCurrentCodeToRevive(){
   }else{
     alert('❌ 保存失败，可能超出浏览器存储限制。\n\n当前代码大小：' + (cleaned.length/1024).toFixed(1) + ' KB');
   }
+}
+
+function verifyRevivePassword(){
+  var pwd = prompt('⚠️ 恢复操作需要验证身份\n\n请输入确认密码：');
+  if(pwd === null) return false;
+  if(pwd !== 'qiuhua'){
+    alert('❌ 密码错误，恢复已取消。');
+    return false;
+  }
+  return true;
 }
 
 // ====================== 渲染试卷 ======================
@@ -2112,11 +2069,22 @@ function doLogin(){
   const user=document.getElementById("loginUser").value.trim();
   const pass=document.getElementById("loginPass").value.trim();
   if(user==="A"&&pass==="A"){
-    closeLoginModal();openEditorModal();showToast("登录成功，已打开编辑窗口");
+    isLoggedIn = true;
+    closeLoginModal();
+    document.getElementById("loginBtn").textContent = '编辑';
+    document.getElementById("msLoginBtn").textContent = '编辑';
+    openEditorModal();
+    showToast("登录成功，已打开编辑窗口");
   }else{alert("账号或密码错误！");}
 }
-document.getElementById("loginBtn").onclick=openLoginModal;
-document.getElementById("msLoginBtn").onclick=()=>{closeMobileSheet();openLoginModal();};
+document.getElementById("loginBtn").onclick=function(){
+  if(isLoggedIn) openEditorModal();
+  else openLoginModal();
+};
+document.getElementById("msLoginBtn").onclick=function(){
+  if(isLoggedIn){ closeMobileSheet(); openEditorModal(); }
+  else { closeMobileSheet(); openLoginModal(); }
+};
 
 // ====================== 行号同步 ======================
 function syncEditorLines(){
@@ -2124,6 +2092,8 @@ function syncEditorLines(){
   const lines = document.getElementById('editorLines');
   if(!ta || !lines) return;
   const lineCount = ta.value.split('\n').length;
+  if(lines._lastCount === lineCount) return;
+  lines._lastCount = lineCount;
   let arr = [];
   for(let i = 1; i <= lineCount; i++){ arr.push(i); }
   lines.textContent = arr.join('\n');
@@ -2152,24 +2122,28 @@ function toggleEditorHeight(){
 // ====================== HTML 编辑与存档 ======================
 function getPageHTML(){return "<!DOCTYPE html>\n"+document.documentElement.outerHTML;}
 function openEditorModal(){
-  const ta = document.getElementById("editorTextarea");
-  ta.value=getPageHTML();
-  ta.classList.remove('collapsed');
-  const btn=document.getElementById("toggleEditorBtn");
-  if(btn){btn.textContent='↕️ 收起代码框';}
-  syncEditorLines();
-  ta.scrollTop = 0;
-  const lines = document.getElementById('editorLines');
-  if(lines) lines.scrollTop = 0;
-  refreshSnapshots();
-  loadGitHubConfigToForm();
-  restoreGhConfigState();
-  restoreEditorTab();
-  renderDeleteList();
-  renderReviveStatus();
-  const statusEl=document.getElementById('txtImportStatus');
-  if(statusEl)statusEl.textContent='';
   document.getElementById("editorModal").classList.add("open");
+  setTimeout(() => {
+    const ta = document.getElementById("editorTextarea");
+    if (!ta.value || ta.value.length < 50) {
+      ta.value = getPageHTML();
+    }
+    ta.classList.remove('collapsed');
+    const btn = document.getElementById("toggleEditorBtn");
+    if (btn) btn.textContent = '↕️ 收起代码框';
+    syncEditorLines();
+    ta.scrollTop = 0;
+    const lines = document.getElementById('editorLines');
+    if (lines) lines.scrollTop = 0;
+    refreshSnapshots();
+    loadGitHubConfigToForm();
+    restoreGhConfigState();
+    restoreEditorTab();
+    renderDeleteList();
+    renderReviveStatus();
+    const statusEl = document.getElementById('txtImportStatus');
+    if (statusEl) statusEl.textContent = '';
+  }, 50);
 }
 function closeEditorModal(){document.getElementById("editorModal").classList.remove("open");}
 
@@ -2219,6 +2193,117 @@ function restoreTempSnapshot(){
   try{safeSetItem(SAVED_HTML_KEY,snap);}catch(e){alert('保存失败。');return;}
   showToast("已恢复暂存版本，正在刷新...");
   setTimeout(()=>{location.reload();},300);
+}
+
+// ====================== 页面完整性检测（替代时间戳误报） ======================
+(function() {
+  function checkPageIntegrity() {
+    const coreFunctions = ['renderPaper', 'submitPaper', 'parseTxtQuestions', 'getReviveBackup'];
+    for (let fn of coreFunctions) {
+      if (typeof window[fn] !== 'function' && typeof eval(fn) !== 'function') {
+        console.error(`[完整性检测] 核心函数 ${fn} 丢失`);
+        return { ok: false, reason: `核心函数 ${fn} 丢失` };
+      }
+    }
+    const coreElements = ['singleBox', 'multiBox', 'judgeBox', 'submitBtn'];
+    for (let id of coreElements) {
+      if (!document.getElementById(id)) {
+        console.error(`[完整性检测] 核心DOM元素 ${id} 丢失`);
+        return { ok: false, reason: `核心DOM元素 ${id} 丢失` };
+      }
+    }
+    return { ok: true };
+  }
+
+  window.addEventListener('load', function() {
+    setTimeout(function() {
+      const integrity = checkPageIntegrity();
+      if (!integrity.ok) {
+        console.warn('[完整性检测] 未通过:', integrity.reason);
+        var reviveRaw = localStorage.getItem('fire_exam_revive_v1');
+        var savedRaw = localStorage.getItem('fire_exam_saved_html');
+        if (reviveRaw || savedRaw) {
+          var reviveObj = null;
+          if (reviveRaw) {
+            try { reviveObj = JSON.parse(reviveRaw); } catch(e) {}
+          }
+          if (!reviveObj && savedRaw) {
+            reviveObj = { content: savedRaw, time: '来自已保存版本', size: savedRaw.length };
+          }
+          if (reviveObj && reviveObj.content) {
+            showRevivePopupGlobal(reviveObj);
+          }
+        } else {
+          alert('检测到页面异常，但未找到复活备份或已保存版本，请手动修复代码。');
+        }
+      }
+    }, 1200);
+  });
+})();
+
+function showRevivePopupGlobal(revive){
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(5px);';
+  overlay.innerHTML = 
+    '<div style="background:#fff;border-radius:18px;max-width:440px;width:100%;box-shadow:0 25px 70px rgba(0,0,0,0.5);overflow:hidden;border:3px solid #f59e0b;">' +
+      '<div style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;padding:20px 22px 16px;text-align:center;">' +
+        '<div style="font-size:40px;margin-bottom:6px;">💊</div>' +
+        '<div style="font-size:18px;font-weight:700;margin-bottom:4px;">检测到页面异常</div>' +
+        '<div style="font-size:12px;opacity:0.9;">复活备份可用，是否立即恢复？</div>' +
+      '</div>' +
+      '<div style="padding:20px 22px;">' +
+        '<div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;padding:10px 12px;font-size:12px;color:#78350f;line-height:1.7;margin-bottom:14px;">' +
+          '⚠️ 页面可能已崩溃或代码错乱。<br>检测到本地存在<b>复活备份</b>，可以一键恢复。<br>恢复后请刷新页面以重新加载。' +
+        '</div>' +
+        '<div style="font-size:11px;color:#8aa2c0;text-align:center;margin-bottom:14px;">备份时间：' + (revive.time||'未知') + ' · 大小：' + ((revive.size||0)/1024).toFixed(1) + ' KB</div>' +
+        '<div style="background:#fee2e2;border:1px solid #fecaca;border-radius:10px;padding:10px 12px;font-size:11px;color:#991b1b;line-height:1.6;margin-bottom:14px;">' +
+          '⚠️ 恢复操作将使用备份内容覆盖当前页面缓存，请确认。' +
+        '</div>' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;padding:0 22px 20px;">' +
+        '<button id="revivePreviewGlobal" style="flex:0 0 auto;padding:12px 14px;border-radius:12px;border:1px solid #93c5fd;background:#dbeafe;color:#1e40af;font-size:14px;font-weight:600;cursor:pointer;">👁</button>' +
+        '<button id="reviveLaterGlobal" style="flex:1;padding:12px 16px;border-radius:12px;border:1px solid #e2e8f0;background:#f1f5f9;color:#475569;font-size:14px;font-weight:600;cursor:pointer;">稍后</button>' +
+        '<button id="reviveRestoreGlobal" style="flex:1;padding:12px 16px;border-radius:12px;border:none;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 4px 14px rgba(245,158,11,0.4);">立即恢复</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(overlay);
+
+  overlay.querySelector('#reviveLaterGlobal').onclick = function(){ overlay.remove(); };
+
+  overlay.querySelector('#revivePreviewGlobal').onclick = function(){
+    var pv = document.createElement('div');
+    pv.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100000;display:flex;align-items:center;justify-content:center;padding:16px;';
+    pv.innerHTML = 
+      '<div style="background:#fff;border-radius:14px;max-width:720px;width:100%;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;">' +
+        '<div style="padding:14px 18px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;display:flex;justify-content:space-between;align-items:center;">' +
+          '<h3 style="font-size:15px;">💊 复活备份预览（只读）</h3>' +
+          '<button id="revivePreviewClose" style="background:rgba(255,255,255,0.2);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;">✕</button>' +
+        '</div>' +
+        '<div style="padding:14px 18px;overflow-y:auto;flex:1;">' +
+          '<pre style="background:#1e293b;color:#a5f3fc;border-radius:10px;padding:12px;font-family:Consolas,monospace;font-size:11px;line-height:1.5;overflow-x:auto;white-space:pre;max-height:60vh;overflow-y:auto;word-break:break-all;">' + (revive.content||'').replace(/[&<>]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[m];}) + '</pre>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(pv);
+    pv.querySelector('#revivePreviewClose').onclick = function(){ pv.remove(); };
+    pv.addEventListener('click', function(e){ if(e.target === pv) pv.remove(); });
+  };
+
+  overlay.querySelector('#reviveRestoreGlobal').onclick = function(){
+    var pwd = prompt('⚠️ 恢复操作需要验证身份\n\n请输入确认密码：');
+    if(pwd === null) return;
+    if(pwd !== 'qiuhua'){
+      alert('❌ 密码错误，恢复已取消。');
+      return;
+    }
+    if (!confirm('确认使用复活备份覆盖当前页面缓存？')) return;
+    try {
+      localStorage.setItem('fire_exam_saved_html', revive.content);
+      localStorage.removeItem('fire_exam_health_v1');
+    } catch(e) { alert('保存失败，可能超出存储限制'); return; }
+    overlay.remove();
+    alert('✅ 复活备份已应用，正在刷新…');
+    setTimeout(function(){ location.reload(); }, 500);
+  };
 }
 
 // ====================== 事件绑定 ======================
