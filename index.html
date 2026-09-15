@@ -992,7 +992,6 @@ function searchInEditor(next) {
   const status = document.getElementById('editorSearchStatus');
   if (!ta || !input) return;
   
-  // 完全按输入框内容搜索，不做任何修正或替换
   const keyword = input.value;
   
   if (!keyword) {
@@ -1022,21 +1021,22 @@ function searchInEditor(next) {
   
   qbankSearchIndex = pos;
   
-  // 计算行号（仅用于状态栏显示）
   const before = code.slice(0, pos);
   const lineNum = before.split('\n').length;
   
-  // ========== 关键修复：让 textarea 自己滚动到选中位置 ==========
+  // ========== 核心修复：用浏览器原生能力精准定位 ==========
+  // 1. 先用一个隐藏的 div 精确测量"光标前面这段文本"在 textarea 中实际占用的像素高度
+  const exactTop = measureTextHeight(ta, code, pos);
+  
+  // 2. 直接设置 scrollTop 到精确高度
+  ta.scrollTop = Math.max(0, exactTop - ta.clientHeight / 3);
+  
+  // 3. 再选中目标文字，触发浏览器原生定位
   ta.focus();
   ta.setSelectionRange(pos, pos + keyword.length);
   
-  // 延迟一下，让浏览器先处理光标定位，再精确校准滚动位置
-  setTimeout(() => {
-    const lineHeight = 19.5;
-    ta.scrollTop = Math.max(0, (lineNum - 1) * lineHeight - ta.clientHeight / 3);
-    syncEditorScroll();
-  }, 0);
-  // ==========================================================
+  syncEditorScroll();
+  // =====================================================
   
   // 高亮闪烁
   const wrap = document.getElementById('editorWithLines');
@@ -1048,6 +1048,49 @@ function searchInEditor(next) {
   }
   
   if (status) status.innerHTML = `✅ 已找到“${keyword}”在第 ${lineNum} 行`;
+}
+
+// 辅助函数：精确测量 textarea 中某个字符位置的实际像素高度（考虑自动折行）
+function measureTextHeight(textarea, fullText, pos) {
+  const style = window.getComputedStyle(textarea);
+  const lineHeight = parseFloat(style.lineHeight) || 19.5;
+  
+  // 获取 textarea 的可用宽度（去掉左右内边距和边框）
+  const paddingLeft = parseFloat(style.paddingLeft) || 0;
+  const paddingRight = parseFloat(style.paddingRight) || 0;
+  const borderLeft = parseFloat(style.borderLeftWidth) || 0;
+  const borderRight = parseFloat(style.borderRightWidth) || 0;
+  const contentWidth = textarea.clientWidth - paddingLeft - paddingRight;
+  
+  // 创建一个隐藏的 div，样式与 textarea 完全一致
+  const div = document.createElement('div');
+  div.style.cssText = `
+    position:absolute;
+    visibility:hidden;
+    white-space:pre-wrap;
+    word-wrap:break-word;
+    overflow-wrap:break-word;
+    font-family:${style.fontFamily};
+    font-size:${style.fontSize};
+    line-height:${style.lineHeight};
+    letter-spacing:${style.letterSpacing};
+    width:${contentWidth}px;
+    top:0;
+    left:0;
+    z-index:-1;
+    pointer-events:none;
+  `;
+  
+  // 把光标之前的文本放进 div
+  const textBefore = fullText.substring(0, pos);
+  div.textContent = textBefore;
+  document.body.appendChild(div);
+  
+  // div 的实际高度，就是"光标之前的文本"实际占用的像素高度
+  const height = div.offsetHeight;
+  document.body.removeChild(div);
+  
+  return height;
 }
 
 // ====================== GitHub 设置折叠 ======================
