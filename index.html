@@ -502,7 +502,7 @@ h1{text-align:center;color:#0052cc;margin-bottom:12px;font-size:24px;}
             <div style="font-size:12px;color:#b45309;background:#fef3c7;padding:8px 10px;border-radius:6px;margin-bottom:10px;line-height:1.6;">
                 ⚠️ 配置了 GitHub 后，点"保存并刷新"将自动同步到 GitHub Pages，所有设备都能看到最新版。
             </div>
-            <!-- 内嵌搜索栏（不再弹窗） -->
+            <!-- 内嵌搜索栏（不再弹窗，完全精准匹配） -->
             <div class="editor-search-bar" id="editorSearchBar">
                 <input type="text" id="editorSearchInput" value="// ====================== 题库 ======================" placeholder="输入关键词搜索代码…">
                 <button class="search-btn" onclick="searchInEditor()">🔍 查找</button>
@@ -967,7 +967,7 @@ function restoreEditorTab(){
   switchEditorTab(paneId);
 }
 
-// ====================== 内嵌搜索（不再弹窗） ======================
+// ====================== 内嵌搜索（完全精准，像浏览器 Ctrl+F 一样） ======================
 let qbankSearchIndex = -1;
 
 function focusSearchInput(){
@@ -991,37 +991,47 @@ function searchInEditor(next) {
   const input = document.getElementById('editorSearchInput');
   const status = document.getElementById('editorSearchStatus');
   if (!ta || !input) return;
-  const keyword = input.value.trim();
+  
+  // 完全按输入框内容搜索，不做任何修正或替换
+  const keyword = input.value;
+  
   if (!keyword) {
-    if(status) status.textContent = '⚠️ 请输入关键词';
+    if (status) status.textContent = '⚠️ 请输入关键词';
     return;
   }
+  
   const code = ta.value;
   let pos;
+  
   if (next && qbankSearchIndex >= 0) {
     pos = code.indexOf(keyword, qbankSearchIndex + keyword.length);
   } else {
     pos = code.indexOf(keyword);
   }
+  
   if (pos === -1) {
     if (next) {
       pos = code.indexOf(keyword);
     }
     if (pos === -1) {
-      if(status) status.textContent = `❌ 未找到“${keyword}”`;
+      if (status) status.textContent = `❌ 未找到“${keyword}”`;
       qbankSearchIndex = -1;
       return;
     }
   }
+  
   qbankSearchIndex = pos;
   const before = code.slice(0, pos);
   const lineNum = before.split('\n').length;
+  
   ta.focus();
   ta.setSelectionRange(pos, pos + keyword.length);
+  
   const lineHeight = 19.5;
   const targetScroll = Math.max(0, (lineNum - 1) * lineHeight - ta.clientHeight / 3);
   ta.scrollTop = targetScroll;
   syncEditorScroll();
+  
   const wrap = document.getElementById('editorWithLines');
   if (wrap) {
     wrap.classList.remove('qbank-line-highlight');
@@ -1029,7 +1039,8 @@ function searchInEditor(next) {
     wrap.classList.add('qbank-line-highlight');
     setTimeout(() => wrap.classList.remove('qbank-line-highlight'), 2100);
   }
-  if(status) status.innerHTML = `✅ 已找到“${keyword}”在第 ${lineNum} 行`;
+  
+  if (status) status.innerHTML = `✅ 已找到“${keyword}”在第 ${lineNum} 行`;
 }
 
 // ====================== GitHub 设置折叠 ======================
@@ -1405,7 +1416,7 @@ function confirmImportFromPreview(){
   closeUploadPreview();
 }
 
-// ====================== 核心：合并TXT到编辑框（含自动跳转） ======================
+// ====================== 核心：合并TXT到编辑框（含自动聚焦搜索框） ======================
 function mergeTxtIntoEditor(parsed){
   const ta=document.getElementById('editorTextarea');
   let code=ta.value;
@@ -2146,7 +2157,6 @@ function openEditorModal(){
     renderReviveStatus();
     const statusEl = document.getElementById('txtImportStatus');
     if (statusEl) statusEl.textContent = '';
-    // 默认定位到搜索栏
     setTimeout(() => {
       const si = document.getElementById('editorSearchInput');
       if (si) { si.focus(); si.select(); }
