@@ -942,7 +942,8 @@ function validateFullHTML(html) {
       return { ok:false, reason:'检测到行号栏被写入源码（editor-lines 内含大量纯数字）' };
     }
   }
-  // ⭐ 新增：检测"预渲染污染"——源码里不应出现这些运行时才会生成的 DOM
+    // ⭐ 新增：检测"预渲染污染"——先把 <script>...</script> 剔除，只检查真实 DOM
+  const htmlWithoutScripts = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
   const pollutionChecks = [
     { re: /<div class="num-item">\d+<\/div>/g, name: '答题卡预渲染（cardSingle等）' },
     { re: /<div class="item-wrap" id="[smj]_\d+"/g, name: '试卷预渲染（singleBox等）' },
@@ -952,12 +953,11 @@ function validateFullHTML(html) {
     { re: /<div class="delete-item">/g, name: '题库删除预渲染' }
   ];
   for (const item of pollutionChecks) {
-    if (item.re.test(html)) {
+    if (item.re.test(htmlWithoutScripts)) {
       return { ok:false, reason:'检测到运行时 DOM 污染：' + item.name + '（请先清理旧文件）' };
     }
   }
   return { ok:true };
-}
 
 // ====================== 历史分数 ======================
 function getHistoryScores(){try{const raw=safeGetItem(HISTORY_KEY);return raw?JSON.parse(raw):[];}catch(e){return [];}}
