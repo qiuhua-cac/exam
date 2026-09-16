@@ -1300,7 +1300,15 @@ function useSnapshot(id){
   const idx=list.indexOf(item);
   const labels=['存档包A','存档包B','存档包C'];
   const name=labels[idx]||('存档包'+String.fromCharCode(65+idx));
-  if(!confirm(`确定应用 ${name} 吗？\n时间：${item.time}\n\n页面将立即替换为该版本，并自动刷新。`))return;
+    if(!confirm(`确定应用 ${name} 吗？\n时间：${item.time}\n\n页面将立即替换为该版本，并自动刷新。`))return;
+
+  // ⭐ 新增：应用前校验存档内容
+  const snapCheck = validateFullHTML(item.code);
+  if(!snapCheck.ok){
+    alert('❌ 该存档内容已损坏，已阻止应用：\n' + snapCheck.reason);
+    return;
+  }
+
   try{safeSetItem(SAVED_HTML_KEY,item.code);}catch(e){alert('保存失败。');return;}
   closeSnapshotView();
   showToast('已应用该版本，正在刷新...');
@@ -1334,7 +1342,15 @@ function openUndoModal(){
       if(!item)return;
       const idx=list.indexOf(item);
       const name=labels[idx]||('存档包'+String.fromCharCode(65+idx));
-      if(!confirm(`确定撤销为 ${name} 吗？\n时间：${item.time}\n\n页面将立即替换为该版本，并自动刷新。`))return;
+            if(!confirm(`确定撤销为 ${name} 吗？\n时间：${item.time}\n\n页面将立即替换为该版本，并自动刷新。`))return;
+
+      // ⭐ 新增：应用前校验存档内容
+      const snapCheck = validateFullHTML(item.code);
+      if(!snapCheck.ok){
+        alert('❌ 该存档内容已损坏，已阻止应用：\n' + snapCheck.reason);
+        return;
+      }
+
       try{safeSetItem(SAVED_HTML_KEY,item.code);}catch(e){alert('保存失败。');return;}
       closeUndoModal();
       showToast("已应用该版本，正在刷新...");
