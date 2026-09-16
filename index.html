@@ -958,6 +958,7 @@ function validateFullHTML(html) {
     }
   }
   return { ok:true };
+}
 
 // ====================== 历史分数 ======================
 function getHistoryScores(){try{const raw=safeGetItem(HISTORY_KEY);return raw?JSON.parse(raw):[];}catch(e){return [];}}
