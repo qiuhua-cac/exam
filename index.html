@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
+<html lang="zh-CN"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="format-detection" content="telephone=no">
@@ -402,8 +401,8 @@ h1{text-align:center;color:#0052cc;margin-bottom:12px;font-size:24px;}
 <body>
 <div id="sideBar">
     <h3>答题卡</h3>
-    <div class="stat-info">总题：<span id="totalCnt">0</span>题<br>已答：<span id="answeredCnt">0</span>题<br>未答：<span id="unansweredCnt" class="unanswered-num">0</span>题</div>
-    <label class="highlight-toggle"><input type="checkbox" id="keepHighlight" checked>保持答题结果高亮</label>
+    <div class="stat-info">总题：<span id="totalCnt">200</span>题<br>已答：<span id="answeredCnt">0</span>题<br>未答：<span id="unansweredCnt" class="unanswered-num">200</span>题</div>
+    <label class="highlight-toggle"><input type="checkbox" id="keepHighlight" checked="">保持答题结果高亮</label>
     <div class="timer-info" id="timerInfo">⏱ 00:00</div>
     <div class="side-btn-group">
         <button id="submitBtn">提交试卷</button>
@@ -420,7 +419,7 @@ h1{text-align:center;color:#0052cc;margin-bottom:12px;font-size:24px;}
     </div>
 </div>
 
-<div id="resultPanelFixed">
+<div id="resultPanelFixed" style="display: none;">
     <h3>📋 答题结果</h3>
     <label class="result-filter-toggle"><input type="checkbox" id="onlyWrongDesktop">只看错题和未答</label>
     <div class="history-header" id="historyHeader"><span>📊 历史分数</span><span class="arrow">▶</span></div>
@@ -432,7 +431,7 @@ h1{text-align:center;color:#0052cc;margin-bottom:12px;font-size:24px;}
 
 <div id="floatBall" title="答题面板">📋</div>
 
-<div id="mobileSheet">
+<div id="mobileSheet" class="">
     <div class="ms-header">
         <div class="ms-tabs">
             <div class="ms-tab active" data-view="card">答题卡</div>
@@ -446,8 +445,8 @@ h1{text-align:center;color:#0052cc;margin-bottom:12px;font-size:24px;}
             <button id="msResetBtn">重置试卷</button>
             <button id="msLoginBtn">登录</button>
         </div>
-        <div class="ms-info">总题：<span id="msTotalCnt">0</span>题 ｜ 已答：<span id="msAnsweredCnt">0</span>题 ｜ 未答：<span id="msUnansweredCnt" class="unanswered-num">0</span>题<br><span class="timer">⏱ <span id="msTimerInfo">00:00</span></span></div>
-        <label class="ms-toggle"><input type="checkbox" id="msKeepHighlight" checked>保持答题结果高亮（关闭后仅高亮1秒）</label>
+        <div class="ms-info">总题：<span id="msTotalCnt">200</span>题 ｜ 已答：<span id="msAnsweredCnt">0</span>题 ｜ 未答：<span id="msUnansweredCnt" class="unanswered-num">200</span>题<br><span class="timer">⏱ <span id="msTimerInfo">00:00</span></span></div>
+        <label class="ms-toggle"><input type="checkbox" id="msKeepHighlight" checked="">保持答题结果高亮（关闭后仅高亮1秒）</label>
         <div class="ms-panel-view active" id="msViewCard">
             <div class="ms-section-title">单选题</div>
             <div id="msCardSingle" class="num-grid"></div>
@@ -476,8 +475,8 @@ h1{text-align:center;color:#0052cc;margin-bottom:12px;font-size:24px;}
   <div class="type-block"><div class="type-title">判断题（第141~200题）</div><div id="judgeBox"></div></div>
 </div>
 
-<div class="result-panel" id="resultPanel"><div class="score-text" id="scoreText"></div><div id="resultList"></div></div>
-<div class="toast-tip" id="toastTip"></div>
+<div class="result-panel" id="resultPanel" style="display: none;"><div class="score-text" id="scoreText"></div><div id="resultList"></div></div>
+<div class="toast-tip" id="toastTip" style="display: none;"></div>
 
 <div class="modal-overlay" id="loginModal">
     <div class="modal-box">
@@ -517,7 +516,7 @@ h1{text-align:center;color:#0052cc;margin-bottom:12px;font-size:24px;}
                 <button class="tb-btn-help" onclick="showTxtFormatHelp()">格式说明</button>
             </div>
             <div class="editor-with-lines" id="editorWithLines">
-                <div class="editor-lines" id="editorLines">1</div>
+                <div class="editor-lines" id="editorLines"></div>
                 <textarea id="editorTextarea" spellcheck="false" oninput="syncEditorLines()" onscroll="syncEditorScroll()"></textarea>
             </div>
             <input type="file" id="txtFileInput" accept=".txt,text/plain" style="display:none;" onchange="handleTxtUpload(event)">
@@ -574,10 +573,10 @@ h1{text-align:center;color:#0052cc;margin-bottom:12px;font-size:24px;}
                     <input type="text" id="deleteSearchInput" placeholder="输入关键词搜索题目…" oninput="renderDeleteList()">
                     <button onclick="renderDeleteList()">搜索</button>
                 </div>
-                <div class="delete-stats" id="deleteStats">共 0 题</div>
+                <div class="delete-stats" id="deleteStats"></div>
                 <div class="delete-list" id="deleteList"></div>
                 <div class="delete-actions">
-                    <div class="left-info" id="deleteSelectedInfo">已选择 0 题</div>
+                    <div class="left-info" id="deleteSelectedInfo"></div>
                     <div class="btns">
                         <button class="btn-secondary" onclick="toggleSelectAllDelete()" id="deleteSelectAllBtn">全选</button>
                         <button class="btn-danger" onclick="confirmBatchDelete()">🗑️ 删除选中</button>
@@ -596,7 +595,7 @@ h1{text-align:center;color:#0052cc;margin-bottom:12px;font-size:24px;}
                     <b style="color:#b91c1c;">恢复时需输入密码验证身份。</b>
                 </div>
                 <div id="reviveStatus" style="background:#fff;border:1px solid #fcd34d;border-radius:8px;padding:8px 10px;font-size:11px;color:#78350f;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
-                    <span id="reviveStatusText">未上传复活备份</span>
+                    <span id="reviveStatusText"></span>
                     <span id="reviveStatusMeta"></span>
                 </div>
                 <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
@@ -619,7 +618,7 @@ h1{text-align:center;color:#0052cc;margin-bottom:12px;font-size:24px;}
 <div class="modal-overlay" id="snapshotViewModal">
     <div class="snapshot-view-box">
         <h3 id="snapshotViewTitle">📄 存档内容（只读）</h3>
-        <textarea id="snapshotViewTextarea" readonly spellcheck="false"></textarea>
+        <textarea id="snapshotViewTextarea" readonly="" spellcheck="false"></textarea>
         <div class="editor-actions"><button class="btn-primary" onclick="copySnapshotContent()">📋 一键复制</button><button class="btn-secondary" onclick="closeSnapshotView()">关闭</button></div>
     </div>
 </div>
@@ -639,7 +638,7 @@ h1{text-align:center;color:#0052cc;margin-bottom:12px;font-size:24px;}
             <span>📋 题库上传预览（只读模式）</span>
             <span style="font-size:12px;color:#888;font-weight:normal;">确认无误后导入到代码框</span>
         </h3>
-        <div class="preview-stats" id="uploadPreviewStats">正在解析…</div>
+        <div class="preview-stats" id="uploadPreviewStats"></div>
         <div class="preview-tabs">
             <div class="preview-tab active" data-pv="pv-single">单选题</div>
             <div class="preview-tab" data-pv="pv-multi">多选题</div>
@@ -659,7 +658,7 @@ h1{text-align:center;color:#0052cc;margin-bottom:12px;font-size:24px;}
 <div class="modal-overlay" id="revivePreviewModal">
     <div class="snapshot-view-box">
         <h3 id="revivePreviewTitle">💊 复活备份预览（只读）</h3>
-        <textarea id="revivePreviewTextarea" readonly spellcheck="false"></textarea>
+        <textarea id="revivePreviewTextarea" readonly="" spellcheck="false"></textarea>
         <div class="editor-actions"><button class="btn-primary" onclick="copyReviveContent()">📋 一键复制</button><button class="btn-secondary" onclick="closeRevivePreview()">关闭</button></div>
     </div>
 </div>
@@ -2668,5 +2667,5 @@ if(document.readyState==="complete"||document.readyState==="interactive"){
   },0);
 }
 </script>
-</body>
-</html>
+
+</body></html>
