@@ -919,7 +919,7 @@ function cleanHTML(rawHTML){
 }
 function validateFullHTML(html) {
   if (!html || html.length < 500) return { ok:false, reason:'内容过短（< 500 字符）' };
-  const mustHave = [
+  var mustHave = [
     '<!DOCTYPE html>',
     '<html',
     'id="singleBox"',
@@ -929,32 +929,38 @@ function validateFullHTML(html) {
     'renderPaper',
     'submitPaper'
   ];
-  for (const key of mustHave) {
-    if (html.indexOf(key) === -1) {
-      return { ok:false, reason:'缺少关键标记：' + key };
+  for (var i = 0; i < mustHave.length; i++) {
+    if (html.indexOf(mustHave[i]) === -1) {
+      return { ok:false, reason:'缺少关键标记：' + mustHave[i] };
     }
   }
-  // 行号污染检测：editor-lines 里如果出现大段纯数字，判为污染
-  const linesMatch = html.match(/<div class="editor-lines"[^>]*>([\s\S]*?)<\/div>/);
+  // 行号污染检测
+  var linesMatch = html.match(/<div class="editor-lines"[^>]*>([\s\S]*?)<\/div>/);
   if (linesMatch) {
-    const inner = linesMatch[1].trim();
-    if (inner.length > 200 && /^\d+(\s*\n\s*\d+){20,}$/.test(inner)) {
+    var inner = linesMatch[1].trim();
+    if (inner.length > 200 && /^[0-9]+(\s*\n\s*[0-9]+){20,}$/.test(inner)) {
       return { ok:false, reason:'检测到行号栏被写入源码（editor-lines 内含大量纯数字）' };
     }
   }
-    // ⭐ 新增：检测"预渲染污染"——先把 <script>...</script> 剔除，只检查真实 DOM
-  const htmlWithoutScripts = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
-  const pollutionChecks = [
-    { re: /<div class="num-item">\d+<\/div>/g, name: '答题卡预渲染（cardSingle等）' },
-    { re: /<div class="item-wrap" id="[smj]_\d+"/g, name: '试卷预渲染（singleBox等）' },
+  // ⭐ 预渲染污染检测：先剔除 script 段，只检查真实 DOM
+  var scriptEndTag = '</' + 'script>';
+  var htmlWithoutScripts = html.split('<script').map(function(part, i){
+    if (i === 0) return part;
+    var idx = part.indexOf(scriptEndTag);
+    if (idx === -1) return '';
+    return part.slice(idx + scriptEndTag.length);
+  }).join('');
+  var pollutionChecks = [
+    { re: /<div class="num-item">[0-9]+<\/div>/g, name: '答题卡预渲染' },
+    { re: /<div class="item-wrap" id="[smj]_[0-9]+"/g, name: '试卷预渲染' },
     { re: /<div class="history-item">/g, name: '历史分数预渲染' },
     { re: /<div class="ms-history-item">/g, name: '移动端历史分数预渲染' },
     { re: /<div class="snapshot-item/g, name: '存档包预渲染' },
     { re: /<div class="delete-item">/g, name: '题库删除预渲染' }
   ];
-  for (const item of pollutionChecks) {
-    if (item.re.test(htmlWithoutScripts)) {
-      return { ok:false, reason:'检测到运行时 DOM 污染：' + item.name + '（请先清理旧文件）' };
+  for (var pi = 0; pi < pollutionChecks.length; pi++) {
+    if (pollutionChecks[pi].re.test(htmlWithoutScripts)) {
+      return { ok:false, reason:'检测到运行时 DOM 污染：' + pollutionChecks[pi].name };
     }
   }
   return { ok:true };
