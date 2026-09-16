@@ -912,6 +912,33 @@ function cleanHTML(rawHTML){
   html = html.replace(/\n\s*\n\s*\n/g, '\n\n');
   return html;
 }
+function validateFullHTML(html) {
+  if (!html || html.length < 500) return { ok:false, reason:'内容过短（< 500 字符）' };
+  const mustHave = [
+    '<!DOCTYPE html>',
+    '<html',
+    'id="singleBox"',
+    'id="multiBox"',
+    'id="judgeBox"',
+    'questionBank',
+    'renderPaper',
+    'submitPaper'
+  ];
+  for (const key of mustHave) {
+    if (html.indexOf(key) === -1) {
+      return { ok:false, reason:'缺少关键标记：' + key };
+    }
+  }
+  // 行号污染检测：editor-lines 里如果出现大段纯数字，判为污染
+  const linesMatch = html.match(/<div class="editor-lines"[^>]*>([\s\S]*?)<\/div>/);
+  if (linesMatch) {
+    const inner = linesMatch[1].trim();
+    if (inner.length > 200 && /^\d+(\s*\n\s*\d+){20,}$/.test(inner)) {
+      return { ok:false, reason:'检测到行号栏被写入源码（editor-lines 内含大量纯数字）' };
+    }
+  }
+  return { ok:true };
+}
 
 // ====================== 历史分数 ======================
 function getHistoryScores(){try{const raw=safeGetItem(HISTORY_KEY);return raw?JSON.parse(raw):[];}catch(e){return [];}}
@@ -1473,6 +1500,16 @@ function mergeTxtIntoEditor(parsed){
   const statusEl=document.getElementById('txtImportStatus');
   let inserted=0;
 
+  // ⭐ 新增：先确认三个 marker 都存在，否则整体中止
+  const hasSingle = code.indexOf('single:[') !== -1;
+  const hasMulti  = code.indexOf('multi:[')  !== -1;
+  const hasJudge  = code.indexOf('judge:[')  !== -1;
+  if (!hasSingle || !hasMulti || !hasJudge) {
+    if (statusEl) statusEl.textContent = '导入中止：代码框中未找到 questionBank 的 single/multi/judge 定义。';
+    alert('导入中止。\n\n代码框中未找到 questionBank 的 single:[ / multi:[ / judge:[ 定义，无法安全导入。\n请先检查代码框内容是否完整。');
+    return;
+  }
+
   if(parsed.single.length>0){
     const marker='single:[';
     const idx=code.indexOf(marker);
@@ -1510,15 +1547,41 @@ function mergeTxtIntoEditor(parsed){
     return;
   }
 
+    // ⭐ 新增：同步更新内存题库，保证后续预览/删除/导出一致
+  if (parsed.single.length) questionBank.single = questionBank.single.concat(parsed.single);
+  if (parsed.multi.length)  questionBank.multi  = questionBank.multi.concat(parsed.multi);
+  if (parsed.judge.length)  questionBank.judge  = questionBank.judge.concat(parsed.judge);
+
   ta.value=code;
   syncEditorLines();
-  addSnapshot(cleanHTML(code));
+
+  // ⭐ 新增：存档前也校验一次
+  const snapCheck = validateFullHTML(cleanHTML(code));
+  if (snapCheck.ok) {
+    addSnapshot(cleanHTML(code));
+  } else {
+    console.warn('导入后存档跳过：' + snapCheck.reason);
+  }
+
   if(statusEl) statusEl.innerHTML=`✅ 已追加 ${inserted} 题到代码框。已生成新存档包（自动顶替最旧的）。<br>请点击"💾 保存并刷新"保存并生效。`;
   refreshSnapshots();
   showToast(`已导入 ${inserted} 题，请手动点"保存并刷新"`);
 
+    // ⭐ 改为：先切回 HTML 代码标签，再定位到题库锚点
   setTimeout(()=>{
-    focusSearchInput();
+    // 1. 切回「📝 HTML代码」标签
+    if (typeof switchEditorTab === 'function') {
+      switchEditorTab('pane-html');
+    }
+    // 2. 等 DOM 显示完成后再执行搜索定位
+    setTimeout(()=>{
+      const input = document.getElementById('editorSearchInput');
+      if (input) {
+        input.value = '// ====================== 题库 ======================';
+        qbankSearchIndex = -1;
+        searchInEditor();
+      }
+    }, 60);
   }, 300);
 }
 
@@ -1651,7 +1714,13 @@ function updateEditorFromBank(){
   
   ta.value = code;
   syncEditorLines();
-  addSnapshot(cleanHTML(code));
+
+  const snapCheck = validateFullHTML(cleanHTML(code));
+  if (snapCheck.ok) {
+    addSnapshot(cleanHTML(code));
+  } else {
+    console.warn('题库更新后存档跳过：' + snapCheck.reason);
+  }
   refreshSnapshots();
 }
 
@@ -1731,8 +1800,16 @@ function copyReviveContent(){
 
 function applyReviveBackup(){
   const backup = getReviveBackup();
-  if(!backup){ showToast('暂无复活备份，请先上传'); return; }
+    if(!backup){ showToast('暂无复活备份，请先上传'); return; }
   if(!verifyRevivePassword()) return;
+
+  // ⭐ 新增：恢复前校验备份内容
+  const check = validateFullHTML(backup.content);
+  if(!check.ok){
+    alert('❌ 复活备份内容已损坏，已阻止恢复：\n' + check.reason);
+    return;
+  }
+
   if(!confirm('确认使用复活备份覆盖当前页面缓存吗？\n\n覆盖后页面将立即刷新为新版本。')) return;
   try{
     safeSetItem(SAVED_HTML_KEY, backup.content);
@@ -1743,11 +1820,19 @@ function applyReviveBackup(){
 }
 
 function importCurrentCodeToRevive(){
-  const currentCode = getPageHTML();
+    const currentCode = getPageHTML();
   if(!currentCode || currentCode.trim().length < 100){
     alert('当前页面代码不完整，无法导入。');
     return;
   }
+
+  // ⭐ 新增：结构校验
+  const preCheck = validateFullHTML(cleanHTML(currentCode));
+  if(!preCheck.ok){
+    alert('❌ 当前页面代码结构异常，已阻止写入复活备份：\n' + preCheck.reason + '\n\n请检查 getPageHTML 是否已修复。');
+    return;
+  }
+
   const existingBackup = getReviveBackup();
   let msg = '⚠️ 确定将当前使用的代码替换/覆盖复活备份文件吗？\n\n';
   msg += '· 当前代码大小：' + (currentCode.length/1024).toFixed(1) + ' KB\n';
@@ -2184,13 +2269,31 @@ function toggleEditorHeight(){
 }
 
 // ====================== HTML 编辑与存档 ======================
-function getPageHTML(){return "<!DOCTYPE html>\n"+document.documentElement.outerHTML;}
+function getPageHTML(){
+  // 序列化前，先把"运行时产生的临时 DOM 内容"清掉，避免污染源码
+  const linesEl = document.getElementById('editorLines');
+  const taEl = document.getElementById('editorTextarea');
+  const linesBackup = linesEl ? linesEl.textContent : null;
+  const taBackup = taEl ? taEl.value : null;
+
+  // 行号栏清空、编辑框清空（textarea 的初始内容在源码里本来就是空的）
+  if (linesEl) linesEl.textContent = '';
+  if (taEl) taEl.value = '';
+
+  const html = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+
+  // 还原
+  if (linesEl && linesBackup !== null) linesEl.textContent = linesBackup;
+  if (taEl && taBackup !== null) taEl.value = taBackup;
+
+  return html;
+}
 function openEditorModal(){
   document.getElementById("editorModal").classList.add("open");
   setTimeout(() => {
     const ta = document.getElementById("editorTextarea");
     if (!ta.value || ta.value.length < 50) {
-      ta.value = getPageHTML();
+      ta.value = cleanHTML(getPageHTML());
     }
     ta.classList.remove('collapsed');
     const btn = document.getElementById("toggleEditorBtn");
@@ -2219,6 +2322,14 @@ async function saveEditor(){
   const newHTML=document.getElementById("editorTextarea").value;
   if(!newHTML||newHTML.trim().length<50){alert("内容太短，可能不是完整的HTML，请检查。");return;}
   const cleanedHTML=cleanHTML(newHTML);
+
+  // ⭐ 新增：结构校验，不通过就拒绝保存
+  const check = validateFullHTML(cleanedHTML);
+  if(!check.ok){
+    alert('❌ 代码结构校验未通过：' + check.reason + '\n\n已阻止保存，避免污染 Git 仓库。\n请检查编辑框内容是否完整、是否混入了行号等内容。');
+    return;
+  }
+
   try{safeSetItem(TEMP_SNAPSHOT_KEY,getPageHTML());}catch(e){}
   addSnapshot(cleanedHTML);
   try{safeSetItem(SAVED_HTML_KEY,cleanedHTML);}catch(e){}
@@ -2363,7 +2474,15 @@ function showRevivePopupGlobal(revive){
       alert('❌ 密码错误，恢复已取消。');
       return;
     }
-    if (!confirm('确认使用复活备份覆盖当前页面缓存？')) return;
+        if (!confirm('确认使用复活备份覆盖当前页面缓存？')) return;
+
+    // ⭐ 新增：恢复前校验
+    var _check = validateFullHTML(revive.content);
+    if(!_check.ok){
+      alert('❌ 复活备份内容已损坏，已阻止恢复：\n' + _check.reason);
+      return;
+    }
+
     try {
       localStorage.setItem('fire_exam_saved_html', revive.content);
       localStorage.removeItem('fire_exam_health_v1');
@@ -2391,9 +2510,15 @@ document.addEventListener('DOMContentLoaded', ()=>{
     if(!file) return;
     if(!file.name.toLowerCase().endsWith('.txt')){ showToast('请选择 .txt 文件'); return; }
     const reader = new FileReader();
-    reader.onload = (ev)=>{
+        reader.onload = (ev)=>{
       const content = ev.target.result;
       if(!content || content.length < 100){ showToast('文件内容过短，可能不是有效的备份'); return; }
+      // ⭐ 新增：上传前校验
+      const _c = validateFullHTML(cleanHTML(content));
+      if(!_c.ok){
+        alert('❌ 上传的备份文件结构异常，已拒绝保存：\n' + _c.reason);
+        return;
+      }
       if(setReviveBackup(content)){ showToast('✅ 复活备份已上传/覆盖'); renderReviveStatus(); }
       else{ showToast('保存失败，可能超出存储限制'); }
     };
